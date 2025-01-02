@@ -1,101 +1,68 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { Bolt } from "lucide-react";
+import { useRef } from "react";
+
+export default function HomePage() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const handleShowModal = () => dialogRef.current?.showModal();
+  const handleCloseModal = () => dialogRef.current?.close();
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <>
+      <div className="min-h-screen bg-gray-900 text-white p-4 grid place-items-center">
+        <div className="rounded-lg text-card-foreground shadow-sm w-full max-w-md bg-gray-800 border-2 border-red-500">
+          <div className="p-6">
+            <h3 className="flex gap-3 items-center justify-center text-3xl text-center font-semibold text-red-500">
+              <Bolt className="animate-pulse" />
+              <span>電気椅子ゲーム</span>
+              <Bolt className="animate-pulse" />
+            </h3>
+            <p className="pt-1 text-sm text-center text-gray-300">
+              緊張と興奮の2人対戦ゲーム
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 space-y-1.5 p-6 pt-0">
+            <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 p-4 font-bold text-sm">
+              ルームを作成
+            </button>
+            <button
+              onClick={handleShowModal}
+              className="inline-flex h-10 justify-center items-center rounded-full bg-gray-600 p-4 font-bold text-sm"
+            >
+              ルームに入室
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <dialog
+          className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+          ref={dialogRef}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+            <div>
+              <h2 className="font-semibold text-red-500">
+                <span>ルーム入室</span>
+              </h2>
+              <p className="pt-1 text-gray-300">ルームIDを入力してください</p>
+            </div>
+            <input
+              type="text"
+              className="w-full bg-gray-700 text-gray-300 p-2 rounded-md"
+            />
+            <div className="grid gap-4 grid-cols-2">
+              <button
+                onClick={handleCloseModal}
+                className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
+              >
+                キャンセル
+              </button>
+              <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
+                入室
+              </button>
+            </div>
+          </div>
+        </dialog>
+      </div>
+    </>
   );
 }
