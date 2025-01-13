@@ -1,4 +1,9 @@
+"use client";
+
 import PlayerStatus from "@/components/PlayerStatus";
+import { useEffect, useRef } from "react";
+
+const roomId = localStorage.getItem("roomId");
 
 const renderChair = (chair: number) => {
   const index = chair - 1;
@@ -19,6 +24,13 @@ const renderChair = (chair: number) => {
 };
 
 export default function RoomPage() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const handleShowModal = () => dialogRef.current?.showModal();
+
+  useEffect(() => {
+    handleShowModal();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 grid grid-cols-1 auto-rows-max gap-8">
       <div
@@ -37,6 +49,27 @@ export default function RoomPage() {
       <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
         確定する
       </button>
+      <dialog
+        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        ref={dialogRef}
+      >
+        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+          <div>
+            <h2 className="font-semibold text-red-500">
+              <span>ルームを作成しました</span>
+            </h2>
+            <p className="pt-1 text-gray-300">
+              下記のルームIDを対戦相手に伝えてください。
+            </p>
+            <p className="pt-1 text-gray-300">
+              対戦相手が入室しだい、ゲームを開始します。
+            </p>
+          </div>
+          <div className="text-center text-2xl text-red-500">
+            <span>{roomId}</span>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }
