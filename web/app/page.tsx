@@ -2,11 +2,31 @@
 
 import { Bolt } from "lucide-react";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const router = useRouter();
+
   const dialogRef = useRef<HTMLDialogElement>(null);
   const handleShowModal = () => dialogRef.current?.showModal();
   const handleCloseModal = () => dialogRef.current?.close();
+
+  const handleCreateRoom = async () => {
+    const response = await fetch("/api/rooms", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const res = await response.json();
+    if (res.status === "success") {
+      localStorage.setItem("userId", res.userId);
+      localStorage.setItem("roomId", res.roomId);
+      router.push(`/room/${res.roomId}`);
+    } else {
+      console.error(res.id);
+    }
+  };
 
   return (
     <>
@@ -23,12 +43,15 @@ export default function HomePage() {
             </p>
           </div>
           <div className="flex flex-col gap-4 space-y-1.5 p-6 pt-0">
-            <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 p-4 font-bold text-sm">
+            <button
+              className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 p-4 font-bold text-sm"
+              onClick={handleCreateRoom}
+            >
               ルームを作成
             </button>
             <button
-              onClick={handleShowModal}
               className="inline-flex h-10 justify-center items-center rounded-full bg-gray-600 p-4 font-bold text-sm"
+              onClick={handleShowModal}
             >
               ルームに入室
             </button>
@@ -51,8 +74,8 @@ export default function HomePage() {
             />
             <div className="grid gap-4 grid-cols-2">
               <button
-                onClick={handleCloseModal}
                 className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
+                onClick={handleCloseModal}
               >
                 キャンセル
               </button>
