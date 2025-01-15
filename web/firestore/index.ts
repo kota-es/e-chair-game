@@ -1,7 +1,14 @@
 "use server";
 
 import { initializeApp } from "firebase/app";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import {
+  getDoc,
+  addDoc,
+  collection,
+  getFirestore,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { customAlphabet } from "nanoid";
 
 const firebaseConfig = {
@@ -31,12 +38,46 @@ export const createRoom = async () => {
         [createrId]: {
           point: 0,
           shockedCount: 0,
+          ready: false,
         },
       },
       remainingChairs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     });
-    return { status: "success", roomId: room.id, userId: createrId };
+    return { status: 200, roomId: room.id, userId: createrId };
   } catch (e) {
     return { status: "error", error: e };
+  }
+};
+
+export const joinRoom = async (roomId: string) => {
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const alphanumeric =
+    "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const docRef = doc(db, "rooms", roomId);
+
+  try {
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      return { status: 404, error: "Room not found" };
+    }
+
+    const players = docSnap.data().players;
+    if (Object.keys(players).length >= 2) {
+      return { status: 400, error: "Room is full" };
+    }
+    //メンバー追加
+    const userId = customAlphabet(alphanumeric, 5)();
+    await updateDoc(docRef, {
+      [`players.${userId}`]: {
+        point: 0,
+        shockedCount: 0,
+        ready: false,
+      },
+    });
+    return { status: 200, roomId: roomId, userId: userId };
+  } catch (e) {
+    return { status: 500, error: e };
   }
 };

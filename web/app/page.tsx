@@ -1,13 +1,17 @@
 "use client";
 
 import { Bolt } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const router = useRouter();
 
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const roomIdRef = useRef<HTMLInputElement>(null);
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const handleShowModal = () => dialogRef.current?.showModal();
   const handleCloseModal = () => dialogRef.current?.close();
 
@@ -19,12 +23,36 @@ export default function HomePage() {
       },
     });
     const res = await response.json();
-    if (res.status === "success") {
+    if (res.status === 200) {
       localStorage.setItem("userId", res.userId);
       localStorage.setItem("roomId", res.roomId);
       router.push(`/room/${res.roomId}`);
     } else {
       console.error(res.id);
+    }
+  };
+
+  const handleJoinRoom = async () => {
+    const roomId = roomIdRef.current?.value;
+    const response = await fetch(`/api/rooms/${roomId}/join`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "appliscation/json",
+      },
+    });
+    const res = await response.json();
+
+    if (res.status === 200) {
+      localStorage.setItem("userId", res.userId);
+      localStorage.setItem("roomId", res.roomId);
+      router.push(`/room/${res.roomId}`);
+    } else {
+      if (res.status === 404) {
+        setErrorMessage("ルームが見つかりませんでした");
+      }
+      if (res.status === 400) {
+        setErrorMessage("ルームが満員です");
+      }
     }
   };
 
@@ -70,7 +98,11 @@ export default function HomePage() {
           <input
             type="text"
             className="w-full bg-gray-700 text-gray-300 p-2 rounded-md"
+            ref={roomIdRef}
           />
+          {errorMessage && (
+            <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+          )}
           <div className="grid gap-4 grid-cols-2">
             <button
               className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
@@ -78,7 +110,10 @@ export default function HomePage() {
             >
               キャンセル
             </button>
-            <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
+            <button
+              className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+              onClick={handleJoinRoom}
+            >
               入室
             </button>
           </div>
