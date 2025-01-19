@@ -3,6 +3,8 @@
 import PlayerStatus from "@/components/PlayerStatus";
 import { useEffect, useRef } from "react";
 
+import type { GameRoom } from "@/types/room";
+
 const roomId = localStorage.getItem("roomId");
 
 const renderChair = (chair: number) => {
@@ -24,11 +26,33 @@ const renderChair = (chair: number) => {
 };
 
 export default function RoomPage() {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const handleShowModal = () => dialogRef.current?.showModal();
+  const createrDialogRef = useRef<HTMLDialogElement>(null);
+  const opponentDialogRef = useRef<HTMLDialogElement>(null);
+  const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
+  const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
 
   useEffect(() => {
-    handleShowModal();
+    const entryRoom = async () => {
+      const userId = localStorage.getItem("userId");
+      const res = await fetch(`/api/rooms/${roomId}/entry`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (res.status === 200) {
+        const data = await res.json();
+        const room: GameRoom = data.data;
+        if (room.createrId === userId) {
+          handleCreaterShowModal();
+        } else {
+          handleOpponentShowModal();
+        }
+      }
+    };
+
+    entryRoom();
   }, []);
 
   return (
@@ -51,7 +75,7 @@ export default function RoomPage() {
       </button>
       <dialog
         className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
-        ref={dialogRef}
+        ref={createrDialogRef}
       >
         <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
           <div>
@@ -67,6 +91,18 @@ export default function RoomPage() {
           </div>
           <div className="text-center text-2xl text-red-500">
             <span>{roomId}</span>
+          </div>
+        </div>
+      </dialog>
+      <dialog
+        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        ref={opponentDialogRef}
+      >
+        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+          <div>
+            <p className="pt-1 text-center text-gray-300">
+              まもなくゲームを開始します。
+            </p>
           </div>
         </div>
       </dialog>

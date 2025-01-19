@@ -1,32 +1,14 @@
 "use server";
 
-import { initializeApp } from "firebase/app";
-import {
-  getDoc,
-  addDoc,
-  collection,
-  getFirestore,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { getDoc, addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { customAlphabet } from "nanoid";
-
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEYY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
-};
+import { getFirestoreApp } from "@/firestore/config";
+import { GameRoom, RoomResponse } from "@/types/room";
 
 export const createRoom = async () => {
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
   const alphanumeric =
     "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const db = await getFirestoreApp();
 
   try {
     const createrId = customAlphabet(alphanumeric, 5)();
@@ -50,8 +32,7 @@ export const createRoom = async () => {
 };
 
 export const joinRoom = async (roomId: string) => {
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db = await getFirestoreApp();
 
   const alphanumeric =
     "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -79,5 +60,29 @@ export const joinRoom = async (roomId: string) => {
     return { status: 200, roomId: roomId, userId: userId };
   } catch (e) {
     return { status: 500, error: e };
+  }
+};
+
+export const updateRoom = async (roomId: string, data: Partial<GameRoom>) => {
+  const db = await getFirestoreApp();
+  const docRef = doc(db, "rooms", roomId);
+
+  try {
+    await updateDoc(docRef, data);
+    const docSnap = await getDoc(docRef);
+    return { status: 200, data: docSnap.data() };
+  } catch (e) {
+    return { status: 500, error: e };
+  }
+};
+
+export const getRoom = async (roomId: string): Promise<RoomResponse> => {
+  const db = await getFirestoreApp();
+  const docRef = doc(db, "rooms", roomId);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return { status: 200, data: docSnap.data() as GameRoom };
+  } else {
+    return { status: 404, error: "Room not found" };
   }
 };
