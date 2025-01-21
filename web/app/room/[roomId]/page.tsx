@@ -118,7 +118,11 @@ export default function RoomPage() {
         <div className="text-center text-lg">
           ラウンド: {roomData?.round?.number} |{" "}
           {roomData?.round.turn === "top" ? "表" : "裏"}
-          {roomData?.round.attackerId === userId ? "攻撃" : "防御"}
+          <div>
+            {roomData?.round.attackerId === userId
+              ? "あなたは攻撃です"
+              : "あなたは防御です"}
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <PlayerStatus userId={userId} status={myStatus()} />
@@ -127,6 +131,11 @@ export default function RoomPage() {
       </div>
       <div className="relative w-full max-w-md aspect-square mx-auto">
         {roomData?.remainingChairs.map(renderChair)}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+          <p className="text-xl font-bold text-white bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
+            test
+          </p>
+        </div>
       </div>
       <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
         確定する
