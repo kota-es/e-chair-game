@@ -65,7 +65,6 @@ export const joinRoom = async (roomId: string) => {
     }
     //メンバー追加
     const userId = customAlphabet(alphanumeric, 5)();
-    console.log(players);
     const player = {
       id: userId,
       point: 0,

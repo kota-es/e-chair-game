@@ -7,6 +7,12 @@ import type { GameRoom, Player } from "@/types/room";
 import { getFirestoreApp } from "@/firestore/config";
 import { doc, onSnapshot } from "firebase/firestore";
 
+type playerOperation = {
+  setElectricShock: boolean;
+  selectSitChair: boolean;
+  wait: boolean;
+};
+
 const renderChair = (chair: number) => {
   const index = chair - 1;
   const angle = ((index - 3) / 12) * 2 * Math.PI;
@@ -29,6 +35,11 @@ export default function RoomPage() {
   const [roomData, setRoomData] = useState<GameRoom | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [playerOperation, setPlayerOperation] = useState<playerOperation>({
+    setElectricShock: false,
+    selectSitChair: false,
+    wait: false,
+  });
   const createrDialogRef = useRef<HTMLDialogElement>(null);
   const opponentDialogRef = useRef<HTMLDialogElement>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
@@ -60,6 +71,40 @@ export default function RoomPage() {
       };
     }
     return player;
+  };
+
+  const getInstruction = () => {
+    if (
+      roomData?.round.attackerId !== userId &&
+      !roomData?.round.electricChair
+    ) {
+      return "仕掛ける椅子を選んでください";
+    } else {
+      return "相手が電気椅子を設置中。。。";
+    }
+  };
+
+  const updatePlayerOperation = () => {
+    const operation: playerOperation = {
+      setElectricShock: false,
+      selectSitChair: false,
+      wait: false,
+    };
+    if (
+      roomData?.round.attackerId !== userId &&
+      roomData?.round.electricChair === null
+    ) {
+      operation.setElectricShock = true;
+    } else if (
+      roomData?.round.attackerId === userId &&
+      roomData?.round.electricChair !== null &&
+      roomData?.round.seatedChair === null
+    ) {
+      operation.selectSitChair = true;
+    } else {
+      operation.wait = true;
+    }
+    setPlayerOperation(operation);
   };
 
   useEffect(() => {
@@ -98,15 +143,21 @@ export default function RoomPage() {
     entryRoom();
   }, []);
 
+  const isAllReady = () => {
+    if (!roomData) return false;
+    return (
+      roomData.players.length == 2 &&
+      roomData.players.every((player) => player.ready)
+    );
+  };
+
   useEffect(() => {
     if (!roomData) return;
-    const isAllReady =
-      roomData.players.length == 2 &&
-      roomData.players.every((player) => player.ready);
-    if (isAllReady) {
+    if (isAllReady()) {
       handleCrestorCloseModal();
       handleOpponentCloseModal();
     }
+    updatePlayerOperation();
   }, [roomData]);
 
   return (
@@ -116,12 +167,12 @@ export default function RoomPage() {
         className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
       >
         <div className="text-center text-lg">
-          ラウンド: {roomData?.round?.number} |{" "}
+          ラウンド: {roomData?.round?.number}回{" "}
           {roomData?.round.turn === "top" ? "表" : "裏"}
           <div>
             {roomData?.round.attackerId === userId
-              ? "あなたは攻撃です"
-              : "あなたは防御です"}
+              ? "攻撃ターン：電気椅子を避けて座れ！"
+              : "守備ターン：電気椅子に座らせろ！"}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -131,15 +182,21 @@ export default function RoomPage() {
       </div>
       <div className="relative w-full max-w-md aspect-square mx-auto">
         {roomData?.remainingChairs.map(renderChair)}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-          <p className="text-xl font-bold text-white bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
-            test
-          </p>
-        </div>
+        {isAllReady() && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+            <p className="font-bold text-white bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
+              {getInstruction()}
+            </p>
+          </div>
+        )}
       </div>
-      <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
-        確定する
+      <button
+        className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+        disabled={playerOperation.wait}
+      >
+        {playerOperation.wait ? "お待ちください" : "椅子を確定する"}
       </button>
+      <div>{playerOperation.wait}</div>
       <dialog
         className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={createrDialogRef}
@@ -161,6 +218,7 @@ export default function RoomPage() {
           </div>
         </div>
       </dialog>
+
       <dialog
         className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={opponentDialogRef}

@@ -6,7 +6,6 @@ export const POST = async (
   { params }: { params: { roomId: string } }
 ) => {
   const { roomId } = await params;
-  const res = await watchRoom(roomId);
-  console.log(res);
+  await watchRoom(roomId);
   return NextResponse.json({ status: 200 });
 };
