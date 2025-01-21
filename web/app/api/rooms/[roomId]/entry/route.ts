@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getRoom, updateRoom } from "@/firestore";
-import { isSuccessfulRoomResponse } from "@/app/utils/room";
+import { isSuccessfulGetRoomResponse } from "@/app/utils/room";
 
 export const PATCH = async (
   req: NextRequest,
@@ -12,25 +12,32 @@ export const PATCH = async (
   const { userId } = await req.json();
 
   const room = await getRoom(roomId);
-  if (!isSuccessfulRoomResponse(room)) {
+  if (!isSuccessfulGetRoomResponse(room)) {
     return NextResponse.json(room);
   }
 
-  if (!room.data.players[userId]) {
-    return NextResponse.json({ status: 403, error: "Forbidden" });
+  const isPlayer = room.data.players.some((player) => player.id === userId);
+  if (!isPlayer) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const updateData = {
-    ...room.data.players[userId],
-    ready: true,
-  };
+  const playersData = room.data.players.map((player) => {
+    if (player.id === userId) {
+      return {
+        ...player,
+        ready: true,
+      };
+    }
+    return player;
+  });
 
   const data = {
-    [`players.${userId}`]: {
-      ...updateData,
-    },
+    players: playersData,
   };
 
   const res = await updateRoom(roomId, data);
-  return NextResponse.json(res);
+  if (res.status !== 200) {
+    return NextResponse.json({ error: res.error }, { status: res.status });
+  }
+  return NextResponse.json({ data: res.data }, { status: res.status });
 };

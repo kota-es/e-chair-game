@@ -1,6 +1,13 @@
 "use server";
 
-import { getDoc, addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import {
+  getDoc,
+  addDoc,
+  collection,
+  doc,
+  updateDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { customAlphabet } from "nanoid";
 import { getFirestoreApp } from "@/firestore/config";
 import { GameRoom, RoomResponse } from "@/types/room";
@@ -16,13 +23,21 @@ export const createRoom = async () => {
     const room = await addDoc(collection(db, "rooms"), {
       status: "waiting",
       createrId: createrId,
-      players: {
-        [createrId]: {
+      round: {
+        number: 1,
+        turn: "top",
+        attackerId: createrId,
+        electricChair: null,
+        seatedChair: null,
+      },
+      players: [
+        {
+          id: createrId,
           point: 0,
           shockedCount: 0,
           ready: false,
         },
-      },
+      ],
       remainingChairs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     });
     return { status: 200, roomId: room.id, userId: createrId };
@@ -50,12 +65,16 @@ export const joinRoom = async (roomId: string) => {
     }
     //メンバー追加
     const userId = customAlphabet(alphanumeric, 5)();
+    console.log(players);
+    const player = {
+      id: userId,
+      point: 0,
+      shockedCount: 0,
+      ready: false,
+    };
+    players.push(player);
     await updateDoc(docRef, {
-      [`players.${userId}`]: {
-        point: 0,
-        shockedCount: 0,
-        ready: false,
-      },
+      players: players,
     });
     return { status: 200, roomId: roomId, userId: userId };
   } catch (e) {
@@ -85,4 +104,15 @@ export const getRoom = async (roomId: string): Promise<RoomResponse> => {
   } else {
     return { status: 404, error: "Room not found" };
   }
+};
+
+export const watchRoom = async (roomId: string) => {
+  const db = await getFirestoreApp();
+  const docRef = doc(db, "rooms", roomId);
+
+  const unsubscribe = onSnapshot(docRef, (doc) => {
+    return doc.data();
+  });
+
+  return unsubscribe;
 };

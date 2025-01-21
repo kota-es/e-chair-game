@@ -1,11 +1,11 @@
 "use client";
 
 import PlayerStatus from "@/components/PlayerStatus";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import type { GameRoom } from "@/types/room";
-
-const roomId = localStorage.getItem("roomId");
+import type { GameRoom, Player } from "@/types/room";
+import { getFirestoreApp } from "@/firestore/config";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const renderChair = (chair: number) => {
   const index = chair - 1;
@@ -26,14 +26,48 @@ const renderChair = (chair: number) => {
 };
 
 export default function RoomPage() {
+  const [roomData, setRoomData] = useState<GameRoom | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [roomId, setRoomId] = useState<string | null>(null);
   const createrDialogRef = useRef<HTMLDialogElement>(null);
   const opponentDialogRef = useRef<HTMLDialogElement>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
+  const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
+  const handleOpponentCloseModal = () => opponentDialogRef.current?.close();
+
+  const myStatus = () => {
+    const player = roomData?.players.find((player) => player.id === userId);
+    if (!player) {
+      return {
+        id: "",
+        point: 0,
+        shockedCount: 0,
+        ready: false,
+      };
+    }
+    return player as Player;
+  };
+
+  const opponentStatus = () => {
+    const player = roomData?.players.find((player) => player.id !== userId);
+    if (!player) {
+      return {
+        id: "",
+        point: 0,
+        shockedCount: 0,
+        ready: false,
+      };
+    }
+    return player;
+  };
 
   useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    setUserId(userId);
+    const roomId = localStorage.getItem("roomId");
+    setRoomId(roomId);
     const entryRoom = async () => {
-      const userId = localStorage.getItem("userId");
       const res = await fetch(`/api/rooms/${roomId}/entry`, {
         method: "PATCH",
         headers: {
@@ -44,16 +78,36 @@ export default function RoomPage() {
       if (res.status === 200) {
         const data = await res.json();
         const room: GameRoom = data.data;
+
+        setRoomData(room);
         if (room.createrId === userId) {
           handleCreaterShowModal();
         } else {
           handleOpponentShowModal();
         }
+        const db = await getFirestoreApp();
+        const docRef = doc(db, "rooms", roomId!);
+        const unsubscribe = onSnapshot(docRef, (doc) => {
+          setRoomData(doc.data() as GameRoom);
+        });
+
+        return () => unsubscribe();
       }
     };
 
     entryRoom();
   }, []);
+
+  useEffect(() => {
+    if (!roomData) return;
+    const isAllReady =
+      roomData.players.length == 2 &&
+      roomData.players.every((player) => player.ready);
+    if (isAllReady) {
+      handleCrestorCloseModal();
+      handleOpponentCloseModal();
+    }
+  }, [roomData]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 grid grid-cols-1 auto-rows-max gap-8">
@@ -61,14 +115,18 @@ export default function RoomPage() {
         id="card"
         className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
       >
-        <div className="text-center text-lg">ターン: 1|フェーズ:防御</div>
+        <div className="text-center text-lg">
+          ラウンド: {roomData?.round?.number} |{" "}
+          {roomData?.round.turn === "top" ? "表" : "裏"}
+          {roomData?.round.attackerId === userId ? "攻撃" : "防御"}
+        </div>
         <div className="grid grid-cols-2 gap-4">
-          <PlayerStatus />
-          <PlayerStatus />
+          <PlayerStatus userId={userId} status={myStatus()} />
+          <PlayerStatus userId={userId} status={opponentStatus()} />
         </div>
       </div>
       <div className="relative w-full max-w-md aspect-square mx-auto">
-        {Array.from({ length: 12 }, (_, i) => i + 1).map(renderChair)}
+        {roomData?.remainingChairs.map(renderChair)}
       </div>
       <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
         確定する
