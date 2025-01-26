@@ -18,20 +18,24 @@ type playerOperation = {
 
 const renderChair = (
   chair: number,
-  setSelectedChair: (chair: number) => void
+  setSelectedChair: (chair: number) => void,
+  wait: boolean,
+  selected: boolean
 ) => {
   const index = chair - 1;
   const angle = ((index - 3) / 12) * 2 * Math.PI;
   const radius = 45;
   const left = 50 + radius * Math.cos(angle);
   const top = 50 + radius * Math.sin(angle);
+  const bgColor = selected ? "bg-red-500" : "bg-gray-700";
+  const cursor = wait ? "cursor-not-allowed" : "cursor-pointer";
 
   return (
     <div
       key={chair}
-      className={`inline-flex items-center justify-center  absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 bg-gray-700 text-gray-300 hover:bg-red-600 transition-all duration-300 border border-white rounded-lg cursor-pointer`}
+      className={`inline-flex items-center justify-center  absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 ${bgColor} text-gray-300 transition-all duration-300 border border-white rounded-lg ${cursor}`}
       style={{ left: `${left}%`, top: `${top}%` }}
-      onClick={() => setSelectedChair(chair)}
+      onClick={wait ? undefined : () => setSelectedChair(chair)}
     >
       {chair}
     </div>
@@ -301,7 +305,6 @@ export default function RoomPage() {
         handleCloseActivateModal();
       }, 3000);
     }
-    setSelectedChair(roomData.round.electricChair);
     updatePlayerOperation();
   }, [roomData]);
 
@@ -331,7 +334,12 @@ export default function RoomPage() {
       </div>
       <div className="relative w-full max-w-md aspect-square mx-auto">
         {roomData?.remainingChairs.map((chair) =>
-          renderChair(chair, setSelectedChair)
+          renderChair(
+            chair,
+            setSelectedChair,
+            playerOperation.wait,
+            selectedChair === chair
+          )
         )}
         {isAllReady() && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
