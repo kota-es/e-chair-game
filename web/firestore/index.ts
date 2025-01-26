@@ -24,11 +24,15 @@ export const createRoom = async () => {
       status: "waiting",
       createrId: createrId,
       round: {
-        number: 1,
+        count: 1,
         turn: "top",
         attackerId: createrId,
         electricChair: null,
         seatedChair: null,
+        result: {
+          status: null,
+          confirmedIds: [],
+        },
       },
       players: [
         {

@@ -7,13 +7,19 @@ import type { GameRoom, Player } from "@/types/room";
 import { getFirestoreApp } from "@/firestore/config";
 import { doc, onSnapshot } from "firebase/firestore";
 
+import TurnResultModal from "@/components/modals/TurnResultModal";
+
 type playerOperation = {
   setElectricShock: boolean;
   selectSitChair: boolean;
+  activate: boolean;
   wait: boolean;
 };
 
-const renderChair = (chair: number) => {
+const renderChair = (
+  chair: number,
+  setSelectedChair: (chair: number) => void
+) => {
   const index = chair - 1;
   const angle = ((index - 3) / 12) * 2 * Math.PI;
   const radius = 45;
@@ -25,6 +31,7 @@ const renderChair = (chair: number) => {
       key={chair}
       className={`inline-flex items-center justify-center  absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 bg-gray-700 text-gray-300 hover:bg-red-600 transition-all duration-300 border border-white rounded-lg cursor-pointer`}
       style={{ left: `${left}%`, top: `${top}%` }}
+      onClick={() => setSelectedChair(chair)}
     >
       {chair}
     </div>
@@ -38,14 +45,104 @@ export default function RoomPage() {
   const [playerOperation, setPlayerOperation] = useState<playerOperation>({
     setElectricShock: false,
     selectSitChair: false,
+    activate: false,
     wait: false,
   });
+  const [selectedChair, setSelectedChair] = useState<number | null>(null);
   const createrDialogRef = useRef<HTMLDialogElement>(null);
   const opponentDialogRef = useRef<HTMLDialogElement>(null);
+  const activateDialogRef = useRef<HTMLDialogElement>(null);
+  const turnResultDialogRef = useRef<HTMLDialogElement>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
   const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
   const handleOpponentCloseModal = () => opponentDialogRef.current?.close();
+  const handleShowActivateModal = () => activateDialogRef.current?.showModal();
+  const handleCloseActivateModal = () => activateDialogRef.current?.close();
+  const handleShowTurnResultModal = () =>
+    turnResultDialogRef.current?.showModal();
+  const handleCloseTurnResultModal = () => turnResultDialogRef.current?.close();
+
+  const submitSelectedChair = async () => {
+    const chair = selectedChair;
+    if (!confirm(`${chair}番の椅子で良いですか？`)) {
+      return;
+    }
+    const data = getSubmitRoundData(chair);
+    const res = await fetch(`/api/rooms/${roomId}/round`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ data: data }),
+    });
+    if (res.status !== 200) {
+      const data = await res.json();
+      console.error(data.error);
+    }
+  };
+
+  const submitActivate = async () => {
+    const data = getSubmitRoundData(null);
+    const res = await fetch(`/api/rooms/${roomId}/round`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ data: data }),
+    });
+    if (res.status !== 200) {
+      const data = await res.json();
+      console.error(data.error);
+    }
+  };
+
+  const changeTurn = async () => {
+    handleCloseTurnResultModal();
+    const res = await fetch(`/api/rooms/${roomId}/turn`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+    if (res.status !== 200) {
+      const data = await res.json();
+      console.error(data.error);
+    }
+  };
+
+  const getSubmitRoundData = (chair: number | null) => {
+    const round = roomData?.round;
+    if (playerOperation.setElectricShock) {
+      return {
+        ...round,
+        electricChair: chair,
+        phase: "sitting",
+      };
+    } else if (playerOperation.selectSitChair) {
+      return {
+        ...round,
+        seatedChair: chair,
+        phase: "activating",
+      };
+    } else if (playerOperation.activate) {
+      const electricChair = round?.electricChair;
+      const seatedChair = round?.seatedChair;
+      const resultStatus = electricChair === seatedChair ? "shocked" : "safe";
+      const result = round?.result;
+      return {
+        ...round,
+        result: {
+          ...result,
+          status: resultStatus,
+        },
+        phase: "result",
+      };
+    }
+
+    return round;
+  };
 
   const myStatus = () => {
     const player = roomData?.players.find((player) => player.id === userId);
@@ -74,20 +171,46 @@ export default function RoomPage() {
   };
 
   const getInstruction = () => {
-    if (
-      roomData?.round.attackerId !== userId &&
-      !roomData?.round.electricChair
-    ) {
-      return "仕掛ける椅子を選んでください";
-    } else {
-      return "相手が電気椅子を設置中。。。";
+    if (playerOperation.selectSitChair) {
+      return "座る椅子を選んでください";
     }
+    if (playerOperation.setElectricShock) {
+      return "電流を設置してください";
+    }
+    if (playerOperation.wait) {
+      if (roomData?.round.attackerId === userId) {
+        if (roomData?.round.phase === "activating") {
+          return "まもなく電流が起動します";
+        }
+        return "相手が電気椅子を設置中";
+      }
+      if (roomData?.round.attackerId !== userId) {
+        if (roomData?.round.phase === "activating") {
+          return "電流を起動してください";
+        }
+        return "相手が座る椅子を選択中。。。";
+      }
+    }
+  };
+
+  const getButtonLabel = () => {
+    if (playerOperation.selectSitChair) {
+      return "選択を確定";
+    }
+    if (playerOperation.setElectricShock) {
+      return "設置を確定";
+    }
+    if (playerOperation.activate) {
+      return "起動";
+    }
+    return "お待ちください";
   };
 
   const updatePlayerOperation = () => {
     const operation: playerOperation = {
       setElectricShock: false,
       selectSitChair: false,
+      activate: false,
       wait: false,
     };
     if (
@@ -101,6 +224,11 @@ export default function RoomPage() {
       roomData?.round.seatedChair === null
     ) {
       operation.selectSitChair = true;
+    } else if (
+      roomData?.round.phase === "activating" &&
+      roomData?.round.attackerId !== userId
+    ) {
+      operation.activate = true;
     } else {
       operation.wait = true;
     }
@@ -133,7 +261,14 @@ export default function RoomPage() {
         const db = await getFirestoreApp();
         const docRef = doc(db, "rooms", roomId!);
         const unsubscribe = onSnapshot(docRef, (doc) => {
-          setRoomData(doc.data() as GameRoom);
+          const data = doc.data() as GameRoom;
+          if (
+            data.round.phase === "result" &&
+            !data.round.result.confirmedIds.includes(userId!)
+          ) {
+            handleShowTurnResultModal();
+          }
+          setRoomData(data);
         });
 
         return () => unsubscribe();
@@ -157,6 +292,16 @@ export default function RoomPage() {
       handleCrestorCloseModal();
       handleOpponentCloseModal();
     }
+    if (
+      roomData.round.attackerId !== userId &&
+      roomData.round.phase === "activating"
+    ) {
+      handleShowActivateModal();
+      setTimeout(() => {
+        handleCloseActivateModal();
+      }, 3000);
+    }
+    setSelectedChair(roomData.round.electricChair);
     updatePlayerOperation();
   }, [roomData]);
 
@@ -167,7 +312,7 @@ export default function RoomPage() {
         className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
       >
         <div className="text-center text-lg">
-          ラウンド: {roomData?.round?.number}回{" "}
+          ラウンド: {roomData?.round?.count}回{" "}
           {roomData?.round.turn === "top" ? "表" : "裏"}
           <div>
             {roomData?.round.attackerId === userId
@@ -180,8 +325,14 @@ export default function RoomPage() {
           <PlayerStatus userId={userId} status={opponentStatus()} />
         </div>
       </div>
+      <div>
+        選択した椅子:
+        {selectedChair}
+      </div>
       <div className="relative w-full max-w-md aspect-square mx-auto">
-        {roomData?.remainingChairs.map(renderChair)}
+        {roomData?.remainingChairs.map((chair) =>
+          renderChair(chair, setSelectedChair)
+        )}
         {isAllReady() && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
             <p className="font-bold text-white bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
@@ -193,10 +344,17 @@ export default function RoomPage() {
       <button
         className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
         disabled={playerOperation.wait}
+        onClick={() => {
+          if (roomData?.round.phase === "activating") {
+            submitActivate();
+          } else {
+            submitSelectedChair();
+          }
+        }}
       >
-        {playerOperation.wait ? "お待ちください" : "椅子を確定する"}
+        {getButtonLabel()}
       </button>
-      <div>{playerOperation.wait}</div>
+
       <dialog
         className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={createrDialogRef}
@@ -231,6 +389,30 @@ export default function RoomPage() {
           </div>
         </div>
       </dialog>
+
+      <dialog
+        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        ref={activateDialogRef}
+      >
+        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+          <div>
+            <h2 className="font-semibold text-red-500">
+              <span>相手が椅子に座りました</span>
+            </h2>
+            <p className="pt-1 text-gray-300">電流を起動してください</p>
+          </div>
+          <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
+            OK
+          </button>
+        </div>
+      </dialog>
+
+      <TurnResultModal
+        ref={turnResultDialogRef}
+        roomData={roomData!}
+        userId={userId!}
+        close={changeTurn}
+      />
     </div>
   );
 }
