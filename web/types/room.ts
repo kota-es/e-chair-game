@@ -21,7 +21,7 @@ export type GameRoom = {
       confirmedIds: string[]; // 結果確定済みのプレイヤーID
     };
   };
-  remainingChairs: [number]; // 残りの椅子番号
+  remainingChairs: number[]; // 残りの椅子番号
   winner: string | null; // ゲーム終了時の勝者情報（ゲーム中はnull）
 };
 
