@@ -25,10 +25,11 @@ const renderChair = (
   selected: boolean
 ) => {
   const index = chair - 1;
-  const angle = ((index - 3) / 12) * 2 * Math.PI;
+  const angle = ((index - 2) / 12) * 2 * Math.PI;
   const radius = 45;
   const left = 50 + radius * Math.cos(angle);
   const top = 50 + radius * Math.sin(angle);
+
   const bgColor = selected ? "bg-red-500" : "bg-gray-700";
   const cursor = wait ? "cursor-not-allowed" : "cursor-pointer";
 
@@ -93,6 +94,7 @@ export default function RoomPage() {
   };
 
   const submitActivate = async () => {
+    handleCloseActivateModal();
     const res = await fetch(`/api/rooms/${roomId}/activate`, {
       method: "PATCH",
       headers: {
@@ -118,6 +120,7 @@ export default function RoomPage() {
       const data = await res.json();
       console.error(data.error);
     }
+    setSelectedChair(null);
   };
 
   const getSubmitRoundData = (chair: number | null) => {
@@ -203,13 +206,10 @@ export default function RoomPage() {
 
   const getButtonLabel = () => {
     if (playerOperation.selectSitChair) {
-      return "選択を確定";
+      return "座る椅子を確定";
     }
     if (playerOperation.setElectricShock) {
-      return "設置を確定";
-    }
-    if (playerOperation.activate) {
-      return "起動";
+      return "設置する椅子を確定";
     }
     return "お待ちください";
   };
@@ -307,9 +307,6 @@ export default function RoomPage() {
       roomData.round.phase === "activating"
     ) {
       handleShowActivateModal();
-      setTimeout(() => {
-        handleCloseActivateModal();
-      }, 3000);
     }
     updatePlayerOperation();
   }, [roomData]);
@@ -338,10 +335,6 @@ export default function RoomPage() {
           <PlayerStatus userId={userId} status={opponentStatus()} />
         </div>
       </div>
-      <div>
-        選択した椅子:
-        {selectedChair}
-      </div>
       <div className="relative w-full max-w-md aspect-square mx-auto">
         {roomData?.remainingChairs.map((chair) =>
           renderChair(
@@ -361,14 +354,8 @@ export default function RoomPage() {
       </div>
       <button
         className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-        disabled={playerOperation.wait}
-        onClick={() => {
-          if (roomData?.round.phase === "activating") {
-            submitActivate();
-          } else {
-            submitSelectedChair();
-          }
-        }}
+        disabled={playerOperation.wait || !selectedChair}
+        onClick={submitSelectedChair}
       >
         {getButtonLabel()}
       </button>
@@ -419,8 +406,11 @@ export default function RoomPage() {
             </h2>
             <p className="pt-1 text-gray-300">電流を起動してください</p>
           </div>
-          <button className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white">
-            OK
+          <button
+            className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+            onClick={submitActivate}
+          >
+            起動
           </button>
         </div>
       </dialog>

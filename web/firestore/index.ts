@@ -42,7 +42,7 @@ export const createRoom = async () => {
           ready: false,
         },
       ],
-      remainingChairs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      remainingChairs: [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     });
     return { status: 200, roomId: room.id, userId: createrId };
   } catch (e) {
