@@ -45,6 +45,7 @@ export const PATCH = async (
           ...plainRoundData.round,
           attackerId: nextAttackerId,
           turn: "bottom",
+          count: round.count,
         },
       };
     } else {
