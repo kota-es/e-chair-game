@@ -6,7 +6,7 @@ import { isSuccessfulGetRoomResponse } from "@/app/utils/room";
 
 export const PATCH = async (
   req: NextRequest,
-  { params }: { params: { roomId: string } }
+  { params }: { params: Promise<{ roomId: string }> }
 ) => {
   const { roomId } = await params;
   const { userId } = await req.json();

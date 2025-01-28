@@ -3,7 +3,7 @@ import { joinRoom } from "@/firestore";
 
 export const POST = async (
   req: NextRequest,
-  { params }: { params: { roomId: string } }
+  { params }: { params: Promise<{ roomId: string }> }
 ) => {
   const { roomId } = await params;
   const res = await joinRoom(roomId);

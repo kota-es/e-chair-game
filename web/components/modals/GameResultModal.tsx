@@ -25,7 +25,7 @@ export default function GameResultModal({
     );
 
     if (isWinner) {
-      if (myStatus?.point >= 40) {
+      if (myStatus && myStatus.point >= 40) {
         return "40点以上を獲得しました。あなたの勝利です!";
       } else if (opponentStatus?.shockedCount === 3) {
         return "相手が3回感電しました。あなたの勝利です!";
@@ -33,7 +33,7 @@ export default function GameResultModal({
         return "残りいすが一つになりました。獲得ポイントの高いあなたの勝利です!";
       }
     } else {
-      if (opponentStatus?.point >= 40) {
+      if (opponentStatus && opponentStatus?.point >= 40) {
         return "40点以上を獲得されました。あなたの敗北です...";
       } else if (myStatus?.shockedCount === 3) {
         return "3回感電しました。あなたの敗北です...";
