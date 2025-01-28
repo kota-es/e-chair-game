@@ -43,7 +43,7 @@ export const PATCH = async (
   const defenderId = room.data.players.find(
     (player) => player.id !== attackerId
   )?.id;
-  if (updatedPlayers.some((player) => player.shockedCount >= 40)) {
+  if (updatedPlayers.some((player) => player.point >= 40)) {
     winnerId = round.attackerId;
   } else if (updatedPlayers.some((player) => player.shockedCount === 3)) {
     winnerId = defenderId;
