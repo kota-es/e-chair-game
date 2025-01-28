@@ -35,21 +35,16 @@ export default function TurnResultModal({
     : "電気椅子を回避されました...";
 
   const bodyText2 = () => {
-    if (!myRoundStatus || !opponentRoundStatus || !roomData.round) return "";
+    if (!myRoundStatus || !opponentRoundStatus || !roomData.round)
+      return "結果取得エラー";
     if (isShocked) {
       return isAttacker
-        ? `あなたの感電回数は${
-            opponentRoundStatus?.shockedCount + 1
-          }回になりました`
-        : `相手の感電回数は${myRoundStatus?.shockedCount + 1}回になりました！`;
+        ? `あなたの感電回数は${opponentRoundStatus?.shockedCount}回になりました`
+        : `相手の感電回数は${myRoundStatus?.shockedCount}回になりました！`;
     } else {
       return isAttacker
-        ? `あなたのスコアは${
-            myRoundStatus?.point + roomData.round.seatedChair!
-          }になりました！`
-        : `相手のスコアは${
-            opponentRoundStatus?.point + roomData.round.seatedChair!
-          }になりました`;
+        ? `あなたのスコアは${myRoundStatus?.point}になりました！`
+        : `相手のスコアは${opponentRoundStatus?.point}になりました`;
     }
   };
 

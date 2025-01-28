@@ -2,12 +2,14 @@
 
 import PlayerStatus from "@/components/PlayerStatus";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type { GameRoom, Player } from "@/types/room";
 import { getFirestoreApp } from "@/firestore/config";
 import { doc, onSnapshot } from "firebase/firestore";
 
 import TurnResultModal from "@/components/modals/TurnResultModal";
+import GameResultModal from "@/components/modals/GameResultModal";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -43,6 +45,7 @@ const renderChair = (
 };
 
 export default function RoomPage() {
+  const router = useRouter();
   const [roomData, setRoomData] = useState<GameRoom | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
@@ -57,6 +60,7 @@ export default function RoomPage() {
   const opponentDialogRef = useRef<HTMLDialogElement>(null);
   const activateDialogRef = useRef<HTMLDialogElement>(null);
   const turnResultDialogRef = useRef<HTMLDialogElement>(null);
+  const gameResultDialogRef = useRef<HTMLDialogElement>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
   const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
@@ -66,6 +70,8 @@ export default function RoomPage() {
   const handleShowTurnResultModal = () =>
     turnResultDialogRef.current?.showModal();
   const handleCloseTurnResultModal = () => turnResultDialogRef.current?.close();
+  const handleShowGameResultModal = () =>
+    gameResultDialogRef.current?.showModal();
 
   const submitSelectedChair = async () => {
     const chair = selectedChair;
@@ -87,13 +93,11 @@ export default function RoomPage() {
   };
 
   const submitActivate = async () => {
-    const data = getSubmitRoundData(null);
-    const res = await fetch(`/api/rooms/${roomId}/round`, {
+    const res = await fetch(`/api/rooms/${roomId}/activate`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ data: data }),
     });
     if (res.status !== 200) {
       const data = await res.json();
@@ -266,7 +270,9 @@ export default function RoomPage() {
         const docRef = doc(db, "rooms", roomId!);
         const unsubscribe = onSnapshot(docRef, (doc) => {
           const data = doc.data() as GameRoom;
-          if (
+          if (data.winnerId) {
+            handleShowGameResultModal();
+          } else if (
             data.round.phase === "result" &&
             !data.round.result.confirmedIds.includes(userId!)
           ) {
@@ -307,6 +313,10 @@ export default function RoomPage() {
     }
     updatePlayerOperation();
   }, [roomData]);
+
+  const toToP = () => {
+    router.push("/");
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 grid grid-cols-1 auto-rows-max gap-8">
@@ -420,6 +430,13 @@ export default function RoomPage() {
         roomData={roomData!}
         userId={userId!}
         close={changeTurn}
+      />
+
+      <GameResultModal
+        ref={gameResultDialogRef}
+        roomData={roomData!}
+        userId={userId!}
+        close={toToP}
       />
     </div>
   );

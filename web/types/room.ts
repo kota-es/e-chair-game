@@ -22,7 +22,7 @@ export type GameRoom = {
     };
   };
   remainingChairs: number[]; // 残りの椅子番号
-  winner: string | null; // ゲーム終了時の勝者情報（ゲーム中はnull）
+  winnerId: string | null; // ゲーム終了時の勝者情報（ゲーム中はnull）
 };
 
 export type RoomResponse =
