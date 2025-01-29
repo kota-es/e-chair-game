@@ -188,30 +188,30 @@ export default function RoomPage() {
       return "座る椅子を選んでください";
     }
     if (playerOperation.setElectricShock) {
-      return "電流を設置してください";
+      return "電気を仕掛ける椅子を選んでください";
     }
     if (playerOperation.wait) {
       if (roomData?.round.attackerId === userId) {
         if (roomData?.round.phase === "activating") {
           return "まもなく電流が起動します";
         }
-        return "相手が電気椅子を設置中";
+        return "相手が電気を仕掛けています。。。";
       }
       if (roomData?.round.attackerId !== userId) {
         if (roomData?.round.phase === "activating") {
           return "電流を起動してください";
         }
-        return "相手が座る椅子を選択中。。。";
+        return "相手が座る椅子を選んでいます。。。";
       }
     }
   };
 
   const getButtonLabel = () => {
     if (playerOperation.selectSitChair) {
-      return "座る椅子を確定";
+      return "確定する";
     }
     if (playerOperation.setElectricShock) {
-      return "設置する椅子を確定";
+      return "確定する";
     }
     return "お待ちください";
   };
@@ -329,7 +329,7 @@ export default function RoomPage() {
         className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
       >
         <div className="text-center text-lg">
-          ラウンド: {roomData?.round?.count}回{" "}
+          {roomData?.round?.count}回{" "}
           {roomData?.round.turn === "top" ? "表" : "裏"}
           <div>
             {roomData?.round.attackerId === userId
@@ -353,7 +353,7 @@ export default function RoomPage() {
         )}
         {isAllReady() && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <p className="font-bold text-white bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
+            <p className="font-bold text-white text-sm bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
               {getInstruction()}
             </p>
           </div>
