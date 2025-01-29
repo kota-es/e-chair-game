@@ -64,6 +64,7 @@ export default function RoomPage() {
   const activateDialogRef = useRef<HTMLDialogElement>(null);
   const turnResultDialogRef = useRef<HTMLDialogElement>(null);
   const gameResultDialogRef = useRef<HTMLDialogElement>(null);
+  const confirmDialogRef = useRef<HTMLDialogElement>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
   const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
@@ -75,13 +76,12 @@ export default function RoomPage() {
   const handleCloseTurnResultModal = () => turnResultDialogRef.current?.close();
   const handleShowGameResultModal = () =>
     gameResultDialogRef.current?.showModal();
+  const handleShowConfirmModal = () => confirmDialogRef.current?.showModal();
+  const handleCloseConfirmModal = () => confirmDialogRef.current?.close();
 
   const submitSelectedChair = async () => {
-    const chair = selectedChair;
-    if (!confirm(`${chair}番の椅子で良いですか？`)) {
-      return;
-    }
-    const data = getSubmitRoundData(chair);
+    handleCloseConfirmModal();
+    const data = getSubmitRoundData(selectedChair);
     const res = await fetch(`/api/rooms/${roomId}/round`, {
       method: "PATCH",
       headers: {
@@ -362,7 +362,7 @@ export default function RoomPage() {
       <button
         className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
         disabled={playerOperation.wait || !selectedChair}
-        onClick={submitSelectedChair}
+        onClick={handleShowConfirmModal}
       >
         {getButtonLabel()}
       </button>
@@ -419,6 +419,33 @@ export default function RoomPage() {
           >
             起動
           </button>
+        </div>
+      </dialog>
+
+      <dialog
+        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        ref={confirmDialogRef}
+      >
+        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+          <div>
+            <p className="pt-1 text-gray-300">
+              {selectedChair}番の椅子で確定しますか？
+            </p>
+          </div>
+          <div className="grid gap-4 grid-cols-2">
+            <button
+              className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
+              onClick={handleCloseConfirmModal}
+            >
+              キャンセル
+            </button>
+            <button
+              className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+              onClick={submitSelectedChair}
+            >
+              確定
+            </button>
+          </div>
         </div>
       </dialog>
 
