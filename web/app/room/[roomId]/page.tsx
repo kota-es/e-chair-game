@@ -10,6 +10,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 
 import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
+import { Zap } from "lucide-react";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -56,6 +57,7 @@ export default function RoomPage() {
     activate: false,
     wait: false,
   });
+  const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
   const createrDialogRef = useRef<HTMLDialogElement>(null);
   const opponentDialogRef = useRef<HTMLDialogElement>(null);
@@ -270,13 +272,18 @@ export default function RoomPage() {
         const docRef = doc(db, "rooms", roomId!);
         const unsubscribe = onSnapshot(docRef, (doc) => {
           const data = doc.data() as GameRoom;
-          if (data.winnerId) {
-            handleShowGameResultModal();
-          } else if (
-            data.round.phase === "result" &&
-            !data.round.result.confirmedIds.includes(userId!)
-          ) {
-            handleShowTurnResultModal();
+          if (data.round.phase === "result" && !data.round.result.shownResult) {
+            const effectType =
+              data.round.result.status === "shocked" ? "shock" : "safe";
+            setShowShock(effectType);
+            setTimeout(() => {
+              setShowShock("");
+              if (data.winnerId) {
+                handleShowGameResultModal();
+              } else {
+                handleShowTurnResultModal();
+              }
+            }, 1500);
           }
           setRoomData(data);
         });
@@ -428,6 +435,18 @@ export default function RoomPage() {
         userId={userId!}
         close={toToP}
       />
+      {showShock === "shock" && (
+        <div className="fixed inset-0 bg-yellow-500 bg-opacity-70 flex items-center justify-center z-50">
+          <Zap className="animate-shock-vibrate text-red-700 w-48 h-48 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
+        </div>
+      )}
+      {showShock === "safe" && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="animate-pulse text-white w-48 h-48 text-center flex justify-center">
+            <span className="font-bold text-9xl">SAFE</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

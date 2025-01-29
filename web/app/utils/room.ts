@@ -11,6 +11,7 @@ export const plainRoundData: Pick<GameRoom, "round"> = {
     result: {
       status: null,
       confirmedIds: [],
+      shownResult: false,
     },
   },
 };

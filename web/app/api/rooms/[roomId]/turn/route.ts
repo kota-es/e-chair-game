@@ -18,6 +18,7 @@ export const PATCH = async (
 
   if (round.result.confirmedIds.length === 0) {
     round.result.confirmedIds.push(userId);
+    round.result.shownResult = true;
 
     const res = await updateRoom(roomId, { round });
 

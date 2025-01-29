@@ -17,7 +17,8 @@ export type GameRoom = {
     electricChair: number | null; // 電気椅子の番号（未設定ならnull）
     seatedChair: number | null; // 座っている椅子の番号（未設定ならnull）
     result: {
-      status: "shocked" | "safe" | null; // 結果: shocked, safe
+      status: "shocked" | "safe" | null; // 結果: shocked, safe, null
+      shownResult: boolean; // 結果表示済みフラグ
       confirmedIds: string[]; // 結果確定済みのプレイヤーID
     };
   };
