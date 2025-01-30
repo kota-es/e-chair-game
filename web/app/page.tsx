@@ -66,7 +66,7 @@ export default function HomePage() {
             <Bolt className="animate-pulse" />
           </h3>
           <p className="pt-1 text-sm text-center text-gray-300">
-            緊張と興奮の2人対戦ゲーム
+            緊張と興奮の椅子取り合戦
           </p>
         </div>
         <div className="flex flex-col gap-4 space-y-1.5 p-6 pt-0">
