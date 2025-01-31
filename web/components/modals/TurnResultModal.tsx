@@ -39,8 +39,8 @@ export default function TurnResultModal({
       return "結果取得エラー";
     if (isShocked) {
       return isAttacker
-        ? `あなたの感電回数は${myRoundStatus?.shockedCount}回になりました`
-        : `相手の感電回数は${opponentRoundStatus?.shockedCount}回になりました！`;
+        ? `感電回数は${myRoundStatus?.shockedCount}回になりました`
+        : `感電回数は${opponentRoundStatus?.shockedCount}回になりました！`;
     } else {
       return isAttacker
         ? `あなたのスコアは${myRoundStatus?.point}になりました！`

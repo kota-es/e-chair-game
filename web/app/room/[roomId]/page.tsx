@@ -61,6 +61,7 @@ export default function RoomPage() {
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
   const createrDialogRef = useRef<HTMLDialogElement>(null);
   const opponentDialogRef = useRef<HTMLDialogElement>(null);
+  const sittingPhaseDialogRef = useRef<HTMLDialogElement>(null);
   const activateDialogRef = useRef<HTMLDialogElement>(null);
   const turnResultDialogRef = useRef<HTMLDialogElement>(null);
   const gameResultDialogRef = useRef<HTMLDialogElement>(null);
@@ -70,6 +71,10 @@ export default function RoomPage() {
   const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
   const handleOpponentCloseModal = () => opponentDialogRef.current?.close();
+  const handleShowSittingPhaseModal = () =>
+    sittingPhaseDialogRef.current?.showModal();
+  const handleCloseSittingPhaseModal = () =>
+    sittingPhaseDialogRef.current?.close();
   const handleShowActivateModal = () => activateDialogRef.current?.showModal();
   const handleCloseActivateModal = () => activateDialogRef.current?.close();
   const handleShowTurnResultModal = () =>
@@ -319,6 +324,16 @@ export default function RoomPage() {
           handleCloseStartTurnModal();
         }, 3000);
       }
+
+      if (
+        roomData.round.phase === "sitting" &&
+        roomData.round.attackerId === userId
+      ) {
+        handleShowSittingPhaseModal();
+        setTimeout(() => {
+          handleCloseSittingPhaseModal();
+        }, 3000);
+      }
     }
     if (
       roomData.round.attackerId !== userId &&
@@ -429,6 +444,26 @@ export default function RoomPage() {
             onClick={submitActivate}
           >
             起動
+          </button>
+        </div>
+      </dialog>
+
+      <dialog
+        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        ref={sittingPhaseDialogRef}
+      >
+        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+          <div>
+            <h2 className="font-semibold text-red-500">
+              <span>相手が電気椅子を仕掛けました</span>
+            </h2>
+            <p className="pt-1 text-gray-300">座る椅子を選択してください</p>
+          </div>
+          <button
+            className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+            onClick={handleCloseSittingPhaseModal}
+          >
+            OK
           </button>
         </div>
       </dialog>
