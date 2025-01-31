@@ -10,7 +10,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 
 import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
-import { Zap } from "lucide-react";
+import { Armchair, Zap } from "lucide-react";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -65,6 +65,7 @@ export default function RoomPage() {
   const turnResultDialogRef = useRef<HTMLDialogElement>(null);
   const gameResultDialogRef = useRef<HTMLDialogElement>(null);
   const confirmDialogRef = useRef<HTMLDialogElement>(null);
+  const startTurnDialogRef = useRef<HTMLDialogElement>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
   const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
@@ -78,6 +79,9 @@ export default function RoomPage() {
     gameResultDialogRef.current?.showModal();
   const handleShowConfirmModal = () => confirmDialogRef.current?.showModal();
   const handleCloseConfirmModal = () => confirmDialogRef.current?.close();
+  const handleShowStartTurnModal = () =>
+    startTurnDialogRef.current?.showModal();
+  const handleCloseStartTurnModal = () => startTurnDialogRef.current?.close();
 
   const submitSelectedChair = async () => {
     handleCloseConfirmModal();
@@ -308,6 +312,13 @@ export default function RoomPage() {
     if (isAllReady()) {
       handleCrestorCloseModal();
       handleOpponentCloseModal();
+
+      if (roomData.round.phase === "setting") {
+        handleShowStartTurnModal();
+        setTimeout(() => {
+          handleCloseStartTurnModal();
+        }, 3000);
+      }
     }
     if (
       roomData.round.attackerId !== userId &&
@@ -445,6 +456,35 @@ export default function RoomPage() {
             >
               確定
             </button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog
+        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center backdrop:bg-black/80 shadow-sm w-full bg-transparent"
+        ref={startTurnDialogRef}
+      >
+        <div className="flex justify-center gap-4 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+          <div className="animate-flip-in-ver-right flex flex-col items-center gap-4">
+            <h2 className="font-semibold text-3xl text-red-500">
+              {roomData?.round.count === 1 && roomData?.round.turn === "top" ? (
+                <span>ゲーム開始</span>
+              ) : (
+                <span>攻守交代</span>
+              )}
+            </h2>
+            <p className="pt-1 text-lg text-gray-300">
+              {roomData?.round.attackerId === userId
+                ? "電流を避けて椅子に座れ"
+                : "仕掛けた電気椅子に座らせろ"}
+            </p>
+            <div className="flex justify-center">
+              {roomData?.round.attackerId === userId ? (
+                <Armchair className="w-24 h-24 text-red-500 animate-pulse" />
+              ) : (
+                <Zap className="w-24 h-24 text-red-500 animate-pulse" />
+              )}
+            </div>
           </div>
         </div>
       </dialog>

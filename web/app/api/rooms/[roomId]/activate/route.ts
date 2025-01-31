@@ -23,9 +23,7 @@ export const PATCH = async (
     if (player.id === round.attackerId) {
       return {
         ...player,
-        point: isShocked
-          ? player.point
-          : player.point + (round.seatedChair || 0),
+        point: isShocked ? 0 : player.point + (round.seatedChair || 0),
         shockedCount: isShocked ? player.shockedCount + 1 : player.shockedCount,
       };
     }

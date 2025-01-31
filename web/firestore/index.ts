@@ -26,6 +26,7 @@ export const createRoom = async () => {
       round: {
         count: 1,
         turn: "top",
+        phase: "setting",
         attackerId: createrId,
         electricChair: null,
         seatedChair: null,
