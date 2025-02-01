@@ -31,13 +31,16 @@ const renderChair = (
   const left = 50 + radius * Math.cos(angle);
   const top = 50 + radius * Math.sin(angle);
 
-  const bgColor = selected ? "bg-red-500" : "bg-gray-700";
+  const bgColor = selected ? "bg-white" : "bg-gray-700";
+  const textColor = selected ? "text-gray-900" : "text-white";
+  const textFont = selected ? "font-bold" : "font-normal";
+  const textSize = selected ? "text-lg" : "text-sm";
   const cursor = wait ? "cursor-not-allowed" : "cursor-pointer";
 
   return (
     <div
       key={chair}
-      className={`inline-flex items-center justify-center  absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 ${bgColor} text-gray-300 transition-all duration-300 border border-white rounded-lg ${cursor}`}
+      className={`inline-flex items-center justify-center  absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 ${bgColor} ${textColor} ${textFont} ${textSize} transition-all duration-300 border border-white rounded-lg ${cursor}`}
       style={{ left: `${left}%`, top: `${top}%` }}
       onClick={wait ? undefined : () => setSelectedChair(chair)}
     >
@@ -349,7 +352,7 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 grid grid-cols-1 auto-rows-max gap-8">
+    <div className="min-h-screen text-white p-4 grid grid-cols-1 auto-rows-max gap-8">
       <div
         id="card"
         className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
