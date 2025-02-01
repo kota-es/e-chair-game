@@ -218,16 +218,6 @@ export default function RoomPage() {
     }
   };
 
-  const getButtonLabel = () => {
-    if (playerOperation.selectSitChair) {
-      return "確定する";
-    }
-    if (playerOperation.setElectricShock) {
-      return "確定する";
-    }
-    return "お待ちください";
-  };
-
   const updatePlayerOperation = () => {
     const operation: playerOperation = {
       setElectricShock: false,
@@ -388,14 +378,14 @@ export default function RoomPage() {
           </div>
         )}
       </div>
-      <button
-        className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-        disabled={playerOperation.wait || !selectedChair}
-        onClick={handleShowConfirmModal}
-      >
-        {getButtonLabel()}
-      </button>
-
+      {!playerOperation.wait && !playerOperation.activate && selectedChair && (
+        <button
+          className="sticky bottom-3 inline-flex h-10 justify-center items-center rounded-full border-2 border-red-700 bg-red-500 font-bold text-sm text-white"
+          onClick={handleShowConfirmModal}
+        >
+          確定
+        </button>
+      )}
       <dialog
         className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={createrDialogRef}
