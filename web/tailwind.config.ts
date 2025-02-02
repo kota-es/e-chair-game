@@ -9,7 +9,7 @@ export default {
   theme: {
     extend: {
       animation: {
-        "shock-vibrate": "shock-vibrate 0.5s linear infinite both",
+        "shock-vibrate": "shock-vibrate 0.25s linear infinite both",
         "flip-in-ver-right":
           "flip-in-ver-right 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940)  both",
       },
@@ -19,16 +19,16 @@ export default {
             transform: "translate(0)",
           },
           "10%,50%,80%": {
-            transform: "translate(-3px, -10px)",
+            transform: "translate(-60px, -30px)",
           },
           "20%,60%,90%": {
-            transform: "translate(2px, -2px)",
+            transform: "translate(30px, -60px)",
           },
           "30%,70%": {
-            transform: "translate(-2px, 2px)",
+            transform: "translate(-60px, 30px)",
           },
           "40%": {
-            transform: "translate(2px, 2px)",
+            transform: "translate(30px, 60px)",
           },
         },
         "flip-in-ver-right": {
