@@ -97,6 +97,7 @@ export default function HomePage() {
           </div>
           <input
             type="text"
+            spellCheck="false"
             className="w-full bg-gray-700 text-gray-300 p-2 rounded-md"
             ref={roomIdRef}
           />
