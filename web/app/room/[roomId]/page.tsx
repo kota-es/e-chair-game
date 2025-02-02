@@ -41,7 +41,7 @@ const renderChair = (
   return (
     <div
       key={chair}
-      className={`inline-flex items-center justify-center  absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 ${bgColor} ${textColor} ${textFont} ${textSize} transition-all duration-300 border border-white rounded-lg ${cursor}`}
+      className={`inline-flex items-center justify-center absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 ${bgColor} ${textColor} ${textFont} ${textSize} transition-all duration-300 border border-white rounded-lg ${cursor} select-none`}
       style={{ left: `${left}%`, top: `${top}%` }}
       onClick={wait ? undefined : () => setSelectedChair(chair)}
     >
