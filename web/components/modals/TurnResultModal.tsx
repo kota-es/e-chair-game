@@ -68,7 +68,7 @@ export default function TurnResultModal({
           <div className="flex gap-6">
             <div className="flex flex-col items-center">
               <div className="text-gray-400">ポイント</div>
-              <div className="font-bold text-green-400 text-4xl">
+              <div className="font-bold text-green-500 text-4xl">
                 {roomData?.round?.attackerId === userId
                   ? myRoundStatus?.point
                   : opponentRoundStatus?.point}
