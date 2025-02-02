@@ -24,14 +24,14 @@ export default function TurnResultModal({
     (player) => player.id !== userId
   );
 
-  const headingText = isShocked ? "感電！！" : "セーフ";
+  const headingText = isShocked ? "感電！" : "セーフ";
 
   const bodyText1 = isShocked
     ? isAttacker
       ? "電気椅子に座ってしまいました..."
-      : "電気椅子に座らせました！"
+      : "電気椅子に座らせました"
     : isAttacker
-    ? "電気椅子を回避しました！"
+    ? "電気椅子を回避しました"
     : "電気椅子を回避されました...";
 
   return (
@@ -42,7 +42,7 @@ export default function TurnResultModal({
       <div className="grid place-items-center gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
         <div className="flex items-center flex-col gap-4">
           <h2 className="font-semibold text-red-500">
-            <span className="text-4xl">{headingText}</span>
+            <span className="text-3xl">{headingText}</span>
           </h2>
           <p className="pt-1 text-2xl font-semibold text-gray-300">
             {bodyText1}
