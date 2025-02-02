@@ -214,26 +214,28 @@ export default function RoomPage() {
   };
 
   const getInstruction = () => {
+    if (playerOperation.setElectricShock) {
+      return "電流を仕掛ける椅子を選んでください";
+    }
     if (playerOperation.selectSitChair) {
       return "座る椅子を選んでください";
     }
-    if (playerOperation.setElectricShock) {
-      return "電気を仕掛ける椅子を選んでください";
-    }
     if (playerOperation.wait) {
-      if (roomData?.round.attackerId === userId) {
-        if (roomData?.round.phase === "activating") {
-          return "まもなく電流が起動します";
-        }
-        return "相手が電気を仕掛けています。。。";
+      if (roomData?.round.phase === "setting") {
+        return "相手が電流を仕掛けています。。。";
       }
-      if (roomData?.round.attackerId !== userId) {
-        if (roomData?.round.phase === "activating") {
-          return "電流を起動してください";
-        }
+      if (roomData?.round.phase === "sitting") {
         return "相手が座る椅子を選んでいます。。。";
       }
+      if (roomData?.round.phase === "activating") {
+        if (roomData?.round.attackerId === userId) {
+          return "まもなく電流が起動します。。。";
+        } else {
+          return "電流を起動してください";
+        }
+      }
     }
+    return "お待ちください。。。";
   };
 
   const updatePlayerOperation = () => {
@@ -390,7 +392,7 @@ export default function RoomPage() {
         )}
         {isAllReady() && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <p className="font-bold text-white text-sm bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
+            <p className="font-bold text-white text-xs bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
               {getInstruction()}
             </p>
           </div>
