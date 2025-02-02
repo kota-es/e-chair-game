@@ -407,7 +407,7 @@ export default function RoomPage() {
         </button>
       )}
       <dialog
-        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={createrDialogRef}
       >
         <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
@@ -435,7 +435,7 @@ export default function RoomPage() {
       </dialog>
 
       <dialog
-        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={activateDialogRef}
       >
         <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
@@ -455,7 +455,7 @@ export default function RoomPage() {
       </dialog>
 
       <dialog
-        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={sittingPhaseDialogRef}
       >
         <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
@@ -475,7 +475,7 @@ export default function RoomPage() {
       </dialog>
 
       <dialog
-        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
+        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
         ref={confirmDialogRef}
       >
         <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
@@ -502,7 +502,7 @@ export default function RoomPage() {
       </dialog>
 
       <dialog
-        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center backdrop:bg-black/80 shadow-sm w-full bg-transparent"
+        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center backdrop:bg-black/80 shadow-sm w-full bg-transparent"
         ref={startTurnDialogRef}
       >
         <div className="flex justify-center gap-4 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
