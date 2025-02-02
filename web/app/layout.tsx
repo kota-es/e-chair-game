@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overscroll-none`}
       >
         <div className="w-full grid place-items-center bg-gray-900">
           <div className="relative w-full max-w-screen-md">{children}</div>
