@@ -10,7 +10,8 @@ import { doc, onSnapshot } from "firebase/firestore";
 
 import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
-import { Armchair, Zap } from "lucide-react";
+import { Armchair, Copy, Zap } from "lucide-react";
+import { Tooltip, TooltipRefProps } from "react-tooltip";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -70,6 +71,7 @@ export default function RoomPage() {
   const gameResultDialogRef = useRef<HTMLDialogElement>(null);
   const confirmDialogRef = useRef<HTMLDialogElement>(null);
   const startTurnDialogRef = useRef<HTMLDialogElement>(null);
+  const tooltipRef = useRef<TooltipRefProps>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
   const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
@@ -104,6 +106,22 @@ export default function RoomPage() {
     if (res.status !== 200) {
       const data = await res.json();
       console.error(data.error);
+    }
+  };
+
+  const copyId = async () => {
+    try {
+      await navigator.clipboard.writeText(roomId!);
+      tooltipRef.current?.open({
+        anchorSelect: "#id-tooltip",
+        content: "IDをコピーしました",
+      });
+    } catch (error) {
+      console.error(error);
+      tooltipRef.current?.open({
+        anchorSelect: "#id-tooltip",
+        content: "IDをコピーできませんでした",
+      });
     }
   };
 
@@ -402,21 +420,14 @@ export default function RoomPage() {
               対戦相手が入室しだい、ゲームを開始します。
             </p>
           </div>
-          <div className="text-center text-2xl text-red-500">
+          <div className="flex gap-2 m-auto text-center text-2xl text-red-500">
             <span>{roomId}</span>
-          </div>
-        </div>
-      </dialog>
-
-      <dialog
-        className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
-        ref={opponentDialogRef}
-      >
-        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
-          <div>
-            <p className="pt-1 text-center text-gray-300">
-              まもなくゲームを開始します。
-            </p>
+            <div>
+              <Tooltip ref={tooltipRef} style={{ fontSize: "16px" }} />
+              <a id="id-tooltip" className="cursor-pointer" onClick={copyId}>
+                <Copy className="text-red-800" />
+              </a>
+            </div>
           </div>
         </div>
       </dialog>
