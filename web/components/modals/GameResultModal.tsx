@@ -1,4 +1,5 @@
 import { GameRoom } from "@/types/room";
+import { Skull, Trophy } from "lucide-react";
 import { Ref } from "react";
 
 type GameResultModalProps = {
@@ -16,30 +17,30 @@ export default function GameResultModal({
 }: GameResultModalProps) {
   const isWinner = roomData?.winnerId === userId;
 
-  const headingText = isWinner ? "勝利！！" : "敗北...";
+  const myStatus = roomData?.players.find((player) => player.id === userId);
+  const opponentStatus = roomData?.players.find(
+    (player) => player.id !== userId
+  );
 
-  const text = () => {
-    const myStatus = roomData?.players.find((player) => player.id === userId);
-    const opponentStatus = roomData?.players.find(
-      (player) => player.id !== userId
-    );
+  const borderColor = isWinner ? "border-yellow-500" : "border-red-500";
+  const bgColor = isWinner ? "bg-yellow-600" : "bg-red-500";
 
+  const getWinningCondition = () => {
+    if (opponentStatus === undefined || myStatus === undefined) return "";
     if (isWinner) {
-      if (myStatus && myStatus.point >= 40) {
-        return "40点以上を獲得しました。あなたの勝利です!";
-      } else if (opponentStatus?.shockedCount === 3) {
-        return "相手が3回感電しました。あなたの勝利です!";
-      } else if (roomData.remainingChairs.length === 1) {
-        return "残りいすが一つになりました。獲得ポイントの高いあなたの勝利です!";
+      if (myStatus!.point >= 40) {
+        return "40ポイント以上獲得";
+      } else if (opponentStatus!.shockedCount === 3) {
+        return "相手が3回感電しました";
       }
+      return "獲得ポイントで上回りました";
     } else {
-      if (opponentStatus && opponentStatus?.point >= 40) {
-        return "40点以上を獲得されました。あなたの敗北です...";
-      } else if (myStatus?.shockedCount === 3) {
-        return "3回感電しました。あなたの敗北です...";
-      } else if (roomData?.remainingChairs.length === 1) {
-        return "残りいすが一つになりました。獲得ポイントの高い相手の勝利です...";
+      if (opponentStatus!.point >= 40) {
+        return "相手が40ポイント以上獲得";
+      } else if (myStatus!.shockedCount === 3) {
+        return "あなたが3回感電しました";
       }
+      return "相手が獲得ポイントで上回りました";
     }
   };
 
@@ -48,18 +49,52 @@ export default function GameResultModal({
       className="absolute min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
       ref={ref}
     >
-      <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
-        <div>
-          <h2 className="font-semibold text-red-500">
-            <span>{headingText}</span>
-          </h2>
-          <p className="pt-1 text-gray-300">{text()}</p>
+      <div
+        className={`grid place-items-center gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 ${borderColor}`}
+      >
+        <div className="flex items-center flex-col gap-4">
+          <h2 className="font-semibold text-red-500">ゲーム終了</h2>
+          {isWinner ? (
+            <Trophy className="text-yellow-500 w-24 h-24 animate-pulse" />
+          ) : (
+            <Skull className="text-red-500 w-24 h-24 animate-pulse" />
+          )}
+          <div className="font-bold text-white text-4xl">
+            {isWinner ? "勝利!" : "敗北..."}
+          </div>
+          <p className="text-white text-center font-bold text-2xl">
+            {getWinningCondition()}
+          </p>
+          <div className="flex gap-6">
+            <div className="flex flex-col items-center">
+              <div className="text-white font-bold text-md">あなたのスコア</div>
+              <div className="text-gray-400">獲得ポイント</div>
+              <div className="font-bold text-green-500 text-4xl">
+                {myStatus?.point}
+              </div>
+              <div className="text-gray-400">感電回数</div>
+              <div className="font-bold text-red-500 text-4xl">
+                {myStatus?.shockedCount}
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-white font-bold text-md">相手のスコア</div>
+              <div className="text-gray-400">獲得ポイント</div>
+              <div className="font-bold text-green-500 text-4xl">
+                {opponentStatus?.point}
+              </div>
+              <div className="text-gray-400">感電回数</div>
+              <div className="font-bold text-red-500 text-4xl">
+                {opponentStatus?.shockedCount}
+              </div>
+            </div>
+          </div>
         </div>
         <button
-          className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+          className={`inline-flex h-10 w-full justify-center items-center rounded-full bg-red-500 font-bold text-white ${bgColor}`}
           onClick={close}
         >
-          ゲームを終了する
+          ゲーム終了
         </button>
       </div>
     </dialog>
