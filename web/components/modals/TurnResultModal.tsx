@@ -1,9 +1,11 @@
 import { GameRoom } from "@/types/room";
+import { ChevronRight } from "lucide-react";
 import { Ref } from "react";
 
 type TurnResultModalProps = {
   ref: Ref<HTMLDialogElement>;
   roomData: GameRoom;
+  previousRoomData: GameRoom;
   userId: string;
   close: () => void;
 };
@@ -11,18 +13,31 @@ type TurnResultModalProps = {
 export default function TurnResultModal({
   ref,
   roomData,
+  previousRoomData,
   userId,
   close,
 }: TurnResultModalProps) {
   const isAttacker = roomData?.round?.attackerId === userId;
   const isShocked = roomData?.round?.result.status === "shocked";
 
-  const myRoundStatus = roomData?.players.find(
-    (player) => player.id === userId
+  const attackerPreviousStatus = previousRoomData?.players.find(
+    (player) => player.id === roomData?.round?.attackerId
   );
-  const opponentRoundStatus = roomData?.players.find(
-    (player) => player.id !== userId
+
+  const attackerStatus = roomData?.players.find(
+    (player) => player.id === roomData?.round?.attackerId
   );
+
+  const scoreColor = (type: string, previous: number, current: number) => {
+    if (type === "point") {
+      if (current > previous) return "text-green-500";
+      if (current < previous) return "text-red-500";
+    }
+    if (type === "shockedCount") {
+      if (current > previous) return "text-red-500";
+    }
+    return "text-white";
+  };
 
   const headingText = isShocked ? "感電！" : "セーフ";
 
@@ -65,21 +80,41 @@ export default function TurnResultModal({
             {roomData?.round?.attackerId === userId ? "あなたの" : "相手の"}
             スコアが更新されました
           </p>
-          <div className="flex gap-6">
+          <div className="flex gap-8">
             <div className="flex flex-col items-center">
               <div className="text-gray-400">ポイント</div>
-              <div className="font-bold text-green-500 text-4xl">
-                {roomData?.round?.attackerId === userId
-                  ? myRoundStatus?.point
-                  : opponentRoundStatus?.point}
+              <div className="flex justify-center items-center">
+                <div className="font-bold text-white text-3xl">
+                  {attackerPreviousStatus?.point}
+                </div>
+                <ChevronRight className="w-8 h-8 text-gray-500" />
+                <div
+                  className={`font-bold text-4xl ${scoreColor(
+                    "point",
+                    attackerPreviousStatus?.point ?? 0,
+                    attackerStatus?.point ?? 0
+                  )}`}
+                >
+                  {attackerStatus?.point}
+                </div>
               </div>
             </div>
             <div className="flex flex-col items-center">
               <div className="text-gray-400">感電回数</div>
-              <div className="font-bold text-red-500 text-4xl">
-                {roomData?.round?.attackerId === userId
-                  ? myRoundStatus?.shockedCount
-                  : opponentRoundStatus?.shockedCount}
+              <div className="flex justify-center items-center">
+                <div className="font-bold text-white text-3xl">
+                  {attackerPreviousStatus?.shockedCount}
+                </div>
+                <ChevronRight className="w-8 h-8 text-gray-500" />
+                <div
+                  className={`font-bold text-4xl ${scoreColor(
+                    "shockedCount",
+                    attackerPreviousStatus?.shockedCount ?? 0,
+                    attackerStatus?.shockedCount ?? 0
+                  )}`}
+                >
+                  {attackerStatus?.shockedCount}
+                </div>
               </div>
             </div>
           </div>

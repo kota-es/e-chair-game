@@ -72,6 +72,7 @@ export default function RoomPage() {
   const confirmDialogRef = useRef<HTMLDialogElement>(null);
   const startTurnDialogRef = useRef<HTMLDialogElement>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
+  const previousRoomDataRef = useRef<GameRoom | null>(null);
   const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
   const handleCrestorCloseModal = () => createrDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
@@ -307,7 +308,13 @@ export default function RoomPage() {
               }
             }, 1500);
           }
-          setRoomData(data);
+
+          setRoomData((prev) => {
+            if (data.round.phase === "activating") {
+              previousRoomDataRef.current = prev;
+            }
+            return data;
+          });
         });
 
         return () => unsubscribe();
@@ -533,6 +540,7 @@ export default function RoomPage() {
       <TurnResultModal
         ref={turnResultDialogRef}
         roomData={roomData!}
+        previousRoomData={previousRoomDataRef.current!}
         userId={userId!}
         close={changeTurn}
       />

@@ -29,16 +29,16 @@ export default function GameResultModal({
     if (opponentStatus === undefined || myStatus === undefined) return "";
     if (isWinner) {
       if (myStatus!.point >= 40) {
-        return "40ポイント以上獲得";
+        return "40ポイント以上獲得しました";
       } else if (opponentStatus!.shockedCount === 3) {
         return "相手が3回感電しました";
       }
       return "獲得ポイントで上回りました";
     } else {
       if (opponentStatus!.point >= 40) {
-        return "相手が40ポイント以上獲得";
+        return "相手が40ポイント以上獲得しました";
       } else if (myStatus!.shockedCount === 3) {
-        return "あなたが3回感電しました";
+        return "3回感電しました";
       }
       return "相手が獲得ポイントで上回りました";
     }
