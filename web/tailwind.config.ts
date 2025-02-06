@@ -12,8 +12,17 @@ export default {
         "shock-vibrate": "shock-vibrate 0.25s linear infinite both",
         "flip-in-ver-right":
           "flip-in-ver-right 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940)  both",
+        "scale-in": "scale-in 0.2s ease-out forwards",
+        "winner-result-dialog":
+          "winner-result-dialog 1.5s ease infinite alternate, scale-in 0.2s ease-out forwards",
+        "loser-result-dialog":
+          "loser-result-dialog 1.5s ease infinite alternate, scale-in 0.2s ease-out forwards",
       },
       keyframes: {
+        "scale-in": {
+          "0%": { transform: "scale(0.9)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
         "shock-vibrate": {
           "0%,to": {
             transform: "translate(0)",
@@ -39,6 +48,22 @@ export default {
           to: {
             transform: "rotateY(0)",
             opacity: "1",
+          },
+        },
+        "winner-result-dialog": {
+          "0%": {
+            border: "4px solid #1f2937",
+          },
+          "100%": {
+            border: "4px solid #eab308",
+          },
+        },
+        "loser-result-dialog": {
+          "0%": {
+            border: "4px solid #1f2937",
+          },
+          "100%": {
+            border: "4px solid #ef4444",
           },
         },
       },

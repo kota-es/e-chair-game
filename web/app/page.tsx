@@ -3,6 +3,7 @@
 import { Bolt } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import InfoDialog from "@/components/modals/InfoDialog";
 
 export default function HomePage() {
   const router = useRouter();
@@ -84,42 +85,37 @@ export default function HomePage() {
           </button>
         </div>
       </div>
-      <dialog
-        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
-        ref={dialogRef}
-      >
-        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
-          <div>
-            <h2 className="font-semibold text-red-500">
-              <span>ルーム入室</span>
-            </h2>
-            <p className="pt-1 text-gray-300">ルームIDを入力してください</p>
-          </div>
-          <input
-            type="text"
-            spellCheck="false"
-            className="w-full bg-gray-700 text-gray-300 p-2 rounded-md"
-            ref={roomIdRef}
-          />
-          {errorMessage && (
-            <p className="text-red-500 text-sm text-center">{errorMessage}</p>
-          )}
-          <div className="grid gap-4 grid-cols-2">
-            <button
-              className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
-              onClick={handleCloseModal}
-            >
-              キャンセル
-            </button>
-            <button
-              className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-              onClick={handleJoinRoom}
-            >
-              入室
-            </button>
-          </div>
+      <InfoDialog ref={dialogRef}>
+        <div>
+          <h2 className="font-semibold text-red-500">
+            <span>ルーム入室</span>
+          </h2>
+          <p className="pt-1 text-gray-300">ルームIDを入力してください</p>
         </div>
-      </dialog>
+        <input
+          type="text"
+          spellCheck="false"
+          className="w-full bg-gray-700 text-gray-300 p-2 rounded-md"
+          ref={roomIdRef}
+        />
+        {errorMessage && (
+          <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+        )}
+        <div className="grid gap-4 grid-cols-2">
+          <button
+            className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
+            onClick={handleCloseModal}
+          >
+            キャンセル
+          </button>
+          <button
+            className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+            onClick={handleJoinRoom}
+          >
+            入室
+          </button>
+        </div>
+      </InfoDialog>
     </div>
   );
 }

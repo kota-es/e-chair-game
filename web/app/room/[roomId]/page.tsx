@@ -12,6 +12,7 @@ import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
 import { Armchair, Copy, Zap } from "lucide-react";
 import { Tooltip, TooltipRefProps } from "react-tooltip";
+import InfoDialog from "@/components/modals/InfoDialog";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -413,130 +414,101 @@ export default function RoomPage() {
           確定
         </button>
       )}
-      <dialog
-        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
-        ref={createrDialogRef}
-      >
-        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
+      <InfoDialog ref={createrDialogRef}>
+        <div>
+          <h2 className="font-semibold text-red-500">
+            <span>ルームを作成しました</span>
+          </h2>
+          <p className="pt-1 text-gray-300">
+            下記のルームIDを対戦相手に伝えてください。
+          </p>
+          <p className="pt-1 text-gray-300">
+            対戦相手が入室しだい、ゲームを開始します。
+          </p>
+        </div>
+        <div className="flex gap-2 m-auto text-center text-2xl text-red-500">
+          <span>{roomId}</span>
           <div>
-            <h2 className="font-semibold text-red-500">
-              <span>ルームを作成しました</span>
-            </h2>
-            <p className="pt-1 text-gray-300">
-              下記のルームIDを対戦相手に伝えてください。
-            </p>
-            <p className="pt-1 text-gray-300">
-              対戦相手が入室しだい、ゲームを開始します。
-            </p>
-          </div>
-          <div className="flex gap-2 m-auto text-center text-2xl text-red-500">
-            <span>{roomId}</span>
-            <div>
-              <Tooltip ref={tooltipRef} style={{ fontSize: "16px" }} />
-              <a id="id-tooltip" className="cursor-pointer" onClick={copyId}>
-                <Copy className="text-red-800" />
-              </a>
-            </div>
+            <Tooltip ref={tooltipRef} style={{ fontSize: "16px" }} />
+            <a id="id-tooltip" className="cursor-pointer" onClick={copyId}>
+              <Copy className="text-red-800" />
+            </a>
           </div>
         </div>
-      </dialog>
+      </InfoDialog>
+      <InfoDialog ref={activateDialogRef}>
+        <div>
+          <h2 className="font-semibold text-red-500">
+            <span>相手が椅子に座りました</span>
+          </h2>
+          <p className="pt-1 text-gray-300">電流を起動してください</p>
+        </div>
+        <button
+          className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+          onClick={submitActivate}
+        >
+          起動
+        </button>
+      </InfoDialog>
 
-      <dialog
-        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
-        ref={activateDialogRef}
-      >
-        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
-          <div>
-            <h2 className="font-semibold text-red-500">
-              <span>相手が椅子に座りました</span>
-            </h2>
-            <p className="pt-1 text-gray-300">電流を起動してください</p>
-          </div>
+      <InfoDialog ref={sittingPhaseDialogRef}>
+        <div>
+          <h2 className="font-semibold text-red-500">
+            <span>相手が電気椅子を仕掛けました</span>
+          </h2>
+          <p className="pt-1 text-gray-300">座る椅子を選択してください</p>
+        </div>
+        <button
+          className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
+          onClick={handleCloseSittingPhaseModal}
+        >
+          OK
+        </button>
+      </InfoDialog>
+      <InfoDialog ref={confirmDialogRef}>
+        <div>
+          <p className="pt-1 text-gray-300">
+            {selectedChair}番の椅子で確定しますか？
+          </p>
+        </div>
+        <div className="grid gap-4 grid-cols-2">
+          <button
+            className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
+            onClick={handleCloseConfirmModal}
+          >
+            キャンセル
+          </button>
           <button
             className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-            onClick={submitActivate}
+            onClick={submitSelectedChair}
           >
-            起動
+            確定
           </button>
         </div>
-      </dialog>
-
-      <dialog
-        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
-        ref={sittingPhaseDialogRef}
-      >
-        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
-          <div>
-            <h2 className="font-semibold text-red-500">
-              <span>相手が電気椅子を仕掛けました</span>
-            </h2>
-            <p className="pt-1 text-gray-300">座る椅子を選択してください</p>
-          </div>
-          <button
-            className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-            onClick={handleCloseSittingPhaseModal}
-          >
-            OK
-          </button>
-        </div>
-      </dialog>
-
-      <dialog
-        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
-        ref={confirmDialogRef}
-      >
-        <div className="grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
-          <div>
-            <p className="pt-1 text-gray-300">
-              {selectedChair}番の椅子で確定しますか？
-            </p>
-          </div>
-          <div className="grid gap-4 grid-cols-2">
-            <button
-              className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
-              onClick={handleCloseConfirmModal}
-            >
-              キャンセル
-            </button>
-            <button
-              className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-              onClick={submitSelectedChair}
-            >
-              確定
-            </button>
+      </InfoDialog>
+      <InfoDialog ref={startTurnDialogRef}>
+        <div className="animate-flip-in-ver-right flex flex-col items-center gap-4">
+          <h2 className="font-semibold text-3xl text-red-500">
+            {roomData?.round.count === 1 && roomData?.round.turn === "top" ? (
+              <span>ゲーム開始</span>
+            ) : (
+              <span>攻守交代</span>
+            )}
+          </h2>
+          <p className="pt-1 text-lg text-gray-300">
+            {roomData?.round.attackerId === userId
+              ? "電流を避けて椅子に座れ"
+              : "仕掛けた電気椅子に座らせろ"}
+          </p>
+          <div className="flex justify-center">
+            {roomData?.round.attackerId === userId ? (
+              <Armchair className="w-24 h-24 text-red-500 animate-pulse" />
+            ) : (
+              <Zap className="w-24 h-24 text-red-500 animate-pulse" />
+            )}
           </div>
         </div>
-      </dialog>
-
-      <dialog
-        className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center backdrop:bg-black/80 shadow-sm w-full bg-transparent"
-        ref={startTurnDialogRef}
-      >
-        <div className="flex justify-center gap-4 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
-          <div className="animate-flip-in-ver-right flex flex-col items-center gap-4">
-            <h2 className="font-semibold text-3xl text-red-500">
-              {roomData?.round.count === 1 && roomData?.round.turn === "top" ? (
-                <span>ゲーム開始</span>
-              ) : (
-                <span>攻守交代</span>
-              )}
-            </h2>
-            <p className="pt-1 text-lg text-gray-300">
-              {roomData?.round.attackerId === userId
-                ? "電流を避けて椅子に座れ"
-                : "仕掛けた電気椅子に座らせろ"}
-            </p>
-            <div className="flex justify-center">
-              {roomData?.round.attackerId === userId ? (
-                <Armchair className="w-24 h-24 text-red-500 animate-pulse" />
-              ) : (
-                <Zap className="w-24 h-24 text-red-500 animate-pulse" />
-              )}
-            </div>
-          </div>
-        </div>
-      </dialog>
-
+      </InfoDialog>
       <TurnResultModal
         ref={turnResultDialogRef}
         roomData={roomData!}
@@ -544,7 +516,6 @@ export default function RoomPage() {
         userId={userId!}
         close={changeTurn}
       />
-
       <GameResultModal
         ref={gameResultDialogRef}
         roomData={roomData!}
