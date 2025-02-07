@@ -4,6 +4,8 @@ import PlayerStatus from "@/components/PlayerStatus";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import useSound from "use-sound";
+
 import type { GameRoom, Player } from "@/types/room";
 import { getFirestoreApp } from "@/firestore/config";
 import { doc, onSnapshot } from "firebase/firestore";
@@ -52,6 +54,8 @@ const renderChair = (
 };
 
 export default function RoomPage() {
+  const [playShockEffect] = useSound("/sounds/shock.mp3");
+  const [playSafeEffect] = useSound("/sounds/safe.mp3");
   const router = useRouter();
   const [roomData, setRoomData] = useState<GameRoom | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -296,19 +300,6 @@ export default function RoomPage() {
         const docRef = doc(db, "rooms", roomId!);
         const unsubscribe = onSnapshot(docRef, (doc) => {
           const data = doc.data() as GameRoom;
-          if (data.round.phase === "result" && !data.round.result.shownResult) {
-            const effectType =
-              data.round.result.status === "shocked" ? "shock" : "safe";
-            setShowShock(effectType);
-            setTimeout(() => {
-              setShowShock("");
-              if (data.winnerId) {
-                handleShowGameResultModal();
-              } else {
-                handleShowTurnResultModal();
-              }
-            }, 1500);
-          }
 
           setRoomData((prev) => {
             if (data.round.phase === "activating") {
@@ -362,6 +353,30 @@ export default function RoomPage() {
     ) {
       handleShowActivateModal();
     }
+    if (
+      roomData.round.phase === "result" &&
+      !roomData.round.result.shownResult
+    ) {
+      const effectType =
+        roomData.round.result.status === "shocked" ? "shock" : "safe";
+      if (effectType === "shock") {
+        playShockEffect({
+          playbackRate: 0.7,
+        });
+      } else {
+        playSafeEffect();
+      }
+      setShowShock(effectType);
+      setTimeout(() => {
+        setShowShock("");
+        if (roomData.winnerId) {
+          handleShowGameResultModal();
+        } else {
+          handleShowTurnResultModal();
+        }
+      }, 1500);
+    }
+
     updatePlayerOperation();
   }, [roomData]);
 
