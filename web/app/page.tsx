@@ -40,6 +40,7 @@ export default function HomePage() {
   const handleJoinRoom = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
+    setErrorMessage(null);
     const roomId = roomIdRef.current?.value;
     const response = await fetch(`/api/rooms/${roomId}/join`, {
       method: "POST",
@@ -119,12 +120,16 @@ export default function HomePage() {
             className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
             onClick={handleJoinRoom}
           >
-            入室
+            {isSubmitting ? (
+              <span className="animate-pulse">入室中...</span>
+            ) : (
+              "入室"
+            )}
           </button>
         </div>
       </InfoDialog>
       {isSubmitting && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[1000]">
           <div className="animate-pulse text-white text-center flex justify-center">
             <span className="font-bold text-xl">Loading...</span>
           </div>
