@@ -26,8 +26,8 @@ export default function HomePage() {
         "Content-Type": "application/json",
       },
     });
-    setIsSubmitting(false);
     const res = await response.json();
+    setIsSubmitting(false);
     if (res.status === 200) {
       localStorage.setItem("userId", res.userId);
       localStorage.setItem("roomId", res.roomId);
@@ -48,9 +48,8 @@ export default function HomePage() {
         "Content-Type": "appliscation/json",
       },
     });
-    setIsSubmitting(false);
     const res = await response.json();
-
+    setIsSubmitting(false);
     if (res.status === 200) {
       localStorage.setItem("userId", res.userId);
       localStorage.setItem("roomId", res.roomId);
