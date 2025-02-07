@@ -12,17 +12,21 @@ export default function HomePage() {
   const roomIdRef = useRef<HTMLInputElement>(null);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleShowModal = () => dialogRef.current?.showModal();
   const handleCloseModal = () => dialogRef.current?.close();
 
   const handleCreateRoom = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     const response = await fetch("/api/rooms", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
     });
+    setIsSubmitting(false);
     const res = await response.json();
     if (res.status === 200) {
       localStorage.setItem("userId", res.userId);
@@ -34,6 +38,8 @@ export default function HomePage() {
   };
 
   const handleJoinRoom = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     const roomId = roomIdRef.current?.value;
     const response = await fetch(`/api/rooms/${roomId}/join`, {
       method: "POST",
@@ -41,6 +47,7 @@ export default function HomePage() {
         "Content-Type": "appliscation/json",
       },
     });
+    setIsSubmitting(false);
     const res = await response.json();
 
     if (res.status === 200) {
@@ -116,6 +123,13 @@ export default function HomePage() {
           </button>
         </div>
       </InfoDialog>
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="animate-pulse text-white text-center flex justify-center">
+            <span className="font-bold text-xl">Loading...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
