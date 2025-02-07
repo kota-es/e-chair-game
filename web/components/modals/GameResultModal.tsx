@@ -23,7 +23,7 @@ export default function GameResultModal({
   );
 
   const borderColor = isWinner ? "border-yellow-500" : "border-red-500";
-  const bgColor = isWinner ? "bg-yellow-600" : "bg-red-500";
+  const bgColor = isWinner ? "bg-yellow-500" : "bg-red-500";
   const animation = isWinner
     ? "animate-winner-result-dialog"
     : "animate-loser-result-dialog";

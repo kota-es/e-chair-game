@@ -52,18 +52,18 @@ export default {
         },
         "winner-result-dialog": {
           "0%": {
-            border: "4px solid #1f2937",
+            border: "6px solid #fefcbf",
           },
           "100%": {
-            border: "4px solid #eab308",
+            border: "6px solid #eab308",
           },
         },
         "loser-result-dialog": {
           "0%": {
-            border: "4px solid #1f2937",
+            border: "6px solid #1f2937",
           },
           "100%": {
-            border: "4px solid #ef4444",
+            border: "6px solid #ef4444",
           },
         },
       },

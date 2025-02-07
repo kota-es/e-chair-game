@@ -523,7 +523,7 @@ export default function RoomPage() {
         close={toToP}
       />
       {showShock === "shock" && (
-        <div className="fixed inset-0 bg-yellow-500 bg-opacity-70 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-yellow-300 bg-opacity-70 flex items-center justify-center z-50">
           <Zap className="animate-shock-vibrate text-red-700 w-48 h-48 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
         </div>
       )}
