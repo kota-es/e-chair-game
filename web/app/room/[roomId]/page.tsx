@@ -415,7 +415,15 @@ export default function RoomPage() {
         )}
         {isAllReady() && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <p className="font-bold text-white text-xs bg-gray-800 bg-opacity-75 p-4 rounded-full whitespace-nowrap">
+            <p
+              className={`font-bold text-white text-sm bg-gray-800 bg-opacity-75 p-3 rounded-full whitespace-nowrap
+              ${
+                (playerOperation.setElectricShock ||
+                  playerOperation.selectSitChair) &&
+                "animate-pulse"
+              }
+              `}
+            >
               {getInstruction()}
             </p>
           </div>
@@ -501,25 +509,38 @@ export default function RoomPage() {
           </button>
         </div>
       </InfoDialog>
-      <InfoDialog ref={startTurnDialogRef}>
+      <InfoDialog
+        ref={startTurnDialogRef}
+        borderColor={
+          roomData?.round.attackerId === userId
+            ? "border-emerald-500"
+            : "border-orange-500"
+        }
+      >
         <div className="animate-flip-in-ver-right flex flex-col items-center gap-4">
-          <h2 className="font-semibold text-3xl text-red-500">
+          <h2
+            className={`font-semibold text-3xl ${
+              roomData?.round.attackerId === userId
+                ? "text-emerald-500"
+                : "text-orange-500"
+            }`}
+          >
             {roomData?.round.count === 1 && roomData?.round.turn === "top" ? (
               <span>ゲーム開始</span>
             ) : (
               <span>攻守交代</span>
             )}
           </h2>
-          <p className="pt-1 text-lg text-gray-300">
+          <p className="pt-1 text-lg font-bold text-gray-300">
             {roomData?.round.attackerId === userId
               ? "電流を避けて椅子に座れ"
-              : "仕掛けた電気椅子に座らせろ"}
+              : "電流を仕掛けて相手に座らせろ"}
           </p>
           <div className="flex justify-center">
             {roomData?.round.attackerId === userId ? (
-              <Armchair className="w-24 h-24 text-red-500 animate-pulse" />
+              <Armchair className="w-24 h-24 text-emerald-500 animate-pulse" />
             ) : (
-              <Zap className="w-24 h-24 text-red-500 animate-pulse" />
+              <Zap className="w-24 h-24 text-orange-500 animate-pulse" />
             )}
           </div>
         </div>
