@@ -93,7 +93,6 @@ export default function RoomPage() {
   const handleCloseTurnResultModal = () => turnResultDialogRef.current?.close();
   const handleShowGameResultModal = () =>
     gameResultDialogRef.current?.showModal();
-  const handleShowConfirmModal = () => confirmDialogRef.current?.showModal();
   const handleCloseConfirmModal = () => confirmDialogRef.current?.close();
   const handleShowStartTurnModal = () =>
     startTurnDialogRef.current?.showModal();
@@ -432,7 +431,7 @@ export default function RoomPage() {
       {!playerOperation.wait && !playerOperation.activate && selectedChair && (
         <button
           className="sticky bottom-3 inline-flex h-10 justify-center items-center rounded-full border-2 border-red-700 bg-red-500 font-bold text-sm text-white"
-          onClick={handleShowConfirmModal}
+          onClick={submitSelectedChair}
         >
           確定
         </button>
@@ -487,27 +486,6 @@ export default function RoomPage() {
         >
           OK
         </button>
-      </InfoDialog>
-      <InfoDialog ref={confirmDialogRef}>
-        <div>
-          <p className="pt-1 text-gray-300">
-            {selectedChair}番の椅子で確定しますか？
-          </p>
-        </div>
-        <div className="grid gap-4 grid-cols-2">
-          <button
-            className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
-            onClick={handleCloseConfirmModal}
-          >
-            キャンセル
-          </button>
-          <button
-            className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-            onClick={submitSelectedChair}
-          >
-            確定
-          </button>
-        </div>
       </InfoDialog>
       <InfoDialog
         ref={startTurnDialogRef}
