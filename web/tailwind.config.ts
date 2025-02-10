@@ -17,6 +17,8 @@ export default {
           "winner-result-dialog 1.5s ease infinite alternate, scale-in 0.2s ease-out forwards",
         "loser-result-dialog":
           "loser-result-dialog 1.5s ease infinite alternate, scale-in 0.2s ease-out forwards",
+        "draw-result-dialog":
+          "draw-result-dialog 1.5s ease infinite alternate, scale-in 0.2s ease-out forwards",
       },
       keyframes: {
         "scale-in": {
@@ -64,6 +66,14 @@ export default {
           },
           "100%": {
             border: "6px solid #ef4444",
+          },
+        },
+        "draw-result-dialog": {
+          "0%": {
+            border: "6px solid #d1d5db",
+          },
+          "100%": {
+            border: "6px solid #a0aec0",
           },
         },
       },

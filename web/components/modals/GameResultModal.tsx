@@ -1,5 +1,5 @@
 import { GameRoom } from "@/types/room";
-import { Skull, Trophy } from "lucide-react";
+import { Skull, Trophy, Meh } from "lucide-react";
 import { Ref } from "react";
 
 type GameResultModalProps = {
@@ -16,16 +16,28 @@ export default function GameResultModal({
   close,
 }: GameResultModalProps) {
   const isWinner = roomData?.winnerId === userId;
+  const isDraw = roomData?.winnerId === "draw";
+  console.log(isDraw);
 
   const myStatus = roomData?.players.find((player) => player.id === userId);
   const opponentStatus = roomData?.players.find(
     (player) => player.id !== userId
   );
 
-  const borderColor = isWinner ? "border-yellow-500" : "border-red-500";
-  const bgColor = isWinner ? "bg-yellow-500" : "bg-red-500";
+  const borderColor = isWinner
+    ? "border-yellow-500"
+    : isDraw
+    ? "border-gray-500"
+    : "border-red-500";
+  const bgColor = isWinner
+    ? "bg-yellow-500"
+    : isDraw
+    ? "bg-gray-500"
+    : "bg-red-500";
   const animation = isWinner
     ? "animate-winner-result-dialog"
+    : isDraw
+    ? "animate-draw-result-dialog"
     : "animate-loser-result-dialog";
 
   const getWinningCondition = () => {
@@ -37,6 +49,8 @@ export default function GameResultModal({
         return "相手が3回感電しました";
       }
       return "獲得ポイントで上回りました";
+    } else if (isDraw) {
+      return "合計獲得ポイントが同じでした";
     } else {
       if (opponentStatus!.point >= 40) {
         return "相手が40ポイント以上獲得しました";
@@ -59,11 +73,13 @@ export default function GameResultModal({
           <h2 className="font-semibold text-red-500">ゲーム終了</h2>
           {isWinner ? (
             <Trophy className="text-yellow-500 w-24 h-24 animate-pulse" />
+          ) : isDraw ? (
+            <Meh className="text-gray-500 w-24 h-24 animate-pulse" />
           ) : (
             <Skull className="text-red-500 w-24 h-24 animate-pulse" />
           )}
           <div className="font-bold text-white text-4xl">
-            {isWinner ? "勝利!" : "敗北..."}
+            {isWinner ? "勝利!" : isDraw ? "引き分け" : "敗北..."}
           </div>
           <p className="text-white text-center font-bold text-2xl">
             {getWinningCondition()}
@@ -94,7 +110,7 @@ export default function GameResultModal({
           </div>
         </div>
         <button
-          className={`inline-flex h-10 w-full justify-center items-center rounded-full bg-red-500 font-bold text-white ${bgColor}`}
+          className={`inline-flex h-10 w-full justify-center items-center rounded-full font-bold text-white ${bgColor}`}
           onClick={close}
         >
           ゲーム終了

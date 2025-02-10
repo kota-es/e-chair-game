@@ -1,6 +1,6 @@
 import { isSuccessfulGetRoomResponse } from "@/app/utils/room";
 import { getRoom, updateRoom } from "@/firestore";
-import { GameRoom } from "@/types/room";
+import { GameRoom, Player } from "@/types/room";
 import { NextRequest, NextResponse } from "next/server";
 
 export const PATCH = async (
@@ -46,9 +46,14 @@ export const PATCH = async (
   } else if (updatedPlayers.some((player) => player.shockedCount === 3)) {
     winnerId = defenderId;
   } else if (remainingChairs.length === 1) {
-    const winner = updatedPlayers.reduce((prev, current) =>
-      prev.point > current.point ? prev : current
-    );
+    const winner = updatedPlayers.reduce((prev, current) => {
+      if (current.point > prev.point) {
+        return current;
+      } else if (current.point === prev.point) {
+        return { id: "draw" } as Player;
+      }
+      return prev;
+    });
     winnerId = winner.id;
   }
 
