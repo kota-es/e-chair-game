@@ -17,7 +17,6 @@ export default function GameResultModal({
 }: GameResultModalProps) {
   const isWinner = roomData?.winnerId === userId;
   const isDraw = roomData?.winnerId === "draw";
-  console.log(isDraw);
 
   const myStatus = roomData?.players.find((player) => player.id === userId);
   const opponentStatus = roomData?.players.find(
