@@ -29,8 +29,6 @@ export default function HomePage() {
     const res = await response.json();
     setIsSubmitting(false);
     if (res.status === 200) {
-      localStorage.setItem("userId", res.userId);
-      localStorage.setItem("roomId", res.roomId);
       router.push(`/room/${res.roomId}`);
     } else {
       console.error(res.id);
@@ -51,8 +49,6 @@ export default function HomePage() {
     const res = await response.json();
     setIsSubmitting(false);
     if (res.status === 200) {
-      localStorage.setItem("userId", res.userId);
-      localStorage.setItem("roomId", res.roomId);
       router.push(`/room/${res.roomId}`);
     } else {
       if (res.status === 404) {
