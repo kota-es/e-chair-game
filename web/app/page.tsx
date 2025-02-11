@@ -27,10 +27,10 @@ export default function HomePage() {
       },
     });
     const res = await response.json();
-    setIsSubmitting(false);
     if (res.status === 200) {
       router.push(`/room/${res.roomId}`);
     } else {
+      setIsSubmitting(false);
       console.error(res.id);
     }
   };
@@ -47,10 +47,10 @@ export default function HomePage() {
       },
     });
     const res = await response.json();
-    setIsSubmitting(false);
     if (res.status === 200) {
       router.push(`/room/${res.roomId}`);
     } else {
+      setIsSubmitting(false);
       if (res.status === 404) {
         setErrorMessage("ルームが見つかりませんでした");
       }
