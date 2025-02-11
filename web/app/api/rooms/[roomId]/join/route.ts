@@ -7,5 +7,11 @@ export const POST = async (
 ) => {
   const { roomId } = await params;
   const res = await joinRoom(roomId);
-  return NextResponse.json(res);
+  const response = NextResponse.json(res);
+  if (res.status !== 200) {
+    return response;
+  }
+  response.cookies.set("roomId", res.roomId as string);
+  response.cookies.set("userId", res.userId as string);
+  return response;
 };
