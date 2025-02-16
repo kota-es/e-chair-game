@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getRoom, updateRoom } from "@/firestore";
-import { isSuccessfulGetRoomResponse } from "@/app/utils/room";
+import { isSuccessfulGetRoomResponse } from "@/utils/room";
 
 export const PATCH = async (
   req: NextRequest,

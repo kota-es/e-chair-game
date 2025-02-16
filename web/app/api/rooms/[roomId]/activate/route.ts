@@ -1,4 +1,4 @@
-import { isSuccessfulGetRoomResponse } from "@/app/utils/room";
+import { isSuccessfulGetRoomResponse } from "@/utils/room";
 import { getRoom, updateRoom } from "@/firestore";
 import { GameRoom, Player } from "@/types/room";
 import { NextRequest, NextResponse } from "next/server";

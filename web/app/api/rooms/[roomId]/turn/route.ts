@@ -1,4 +1,4 @@
-import { isSuccessfulGetRoomResponse, plainRoundData } from "@/app/utils/room";
+import { isSuccessfulGetRoomResponse, plainRoundData } from "@/utils/room";
 import { getRoom, updateRoom } from "@/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
