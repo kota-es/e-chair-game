@@ -16,6 +16,7 @@ import { Armchair, Copy, Zap } from "lucide-react";
 import { Tooltip, TooltipRefProps } from "react-tooltip";
 import InfoDialog from "@/components/modals/InfoDialog";
 import { useToast } from "@/utils/toast/useToast";
+import { Toast } from "@/utils/toast/Toast";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -429,6 +430,9 @@ export default function Room({
             </p>
           </div>
         )}
+        <div className="relative max-w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <Toast />
+        </div>
       </div>
       {!playerOperation.wait && !playerOperation.activate && selectedChair && (
         <button
