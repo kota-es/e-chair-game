@@ -15,6 +15,7 @@ import GameResultModal from "@/components/modals/GameResultModal";
 import { Armchair, Copy, Zap } from "lucide-react";
 import { Tooltip, TooltipRefProps } from "react-tooltip";
 import InfoDialog from "@/components/modals/InfoDialog";
+import { useToast } from "@/utils/toast/useToast";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -65,6 +66,7 @@ export default function Room({
   const [playShockEffect] = useSound("/sounds/shock.mp3");
   const [playSafeEffect] = useSound("/sounds/safe.mp3");
   const router = useRouter();
+  const toast = useToast();
   const [roomData, setRoomData] = useState<GameRoom | null>(initialData.room);
   const userId = initialData.userId;
   const roomId = initialData.roomId;
@@ -119,7 +121,16 @@ export default function Room({
     if (res.status !== 200) {
       const data = await res.json();
       console.error(data.error);
+      return;
     }
+    toast.open(
+      <span>
+        <span style={{ color: "red", fontWeight: "bold", fontSize: "1.2rem" }}>
+          {selectedChair}
+        </span>
+        番の椅子を選択しました。
+      </span>
+    );
   };
 
   const copyId = async () => {
