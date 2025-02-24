@@ -7,8 +7,6 @@ import { useRouter } from "next/navigation";
 import useSound from "use-sound";
 
 import type { GameRoom, Player } from "@/types/room";
-import { getFirestoreApp } from "@/firestore/config";
-import { doc, onSnapshot } from "firebase/firestore";
 
 import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
@@ -17,6 +15,7 @@ import { Tooltip, TooltipRefProps } from "react-tooltip";
 import InfoDialog from "@/components/modals/InfoDialog";
 import { useToast } from "@/utils/toast/useToast";
 import { Toast } from "@/utils/toast/Toast";
+import { useRoom } from "@/features/room/useRoom";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -64,11 +63,13 @@ export default function Room({
     roomId: string | null;
   };
 }) {
+  const room = useRoom(initialData);
+  const { roomData, previousRoomDataRef } = room;
   const [playShockEffect] = useSound("/sounds/shock.mp3");
   const [playSafeEffect] = useSound("/sounds/safe.mp3");
   const router = useRouter();
   const toast = useToast();
-  const [roomData, setRoomData] = useState<GameRoom | null>(initialData.room);
+
   const userId = initialData.userId;
   const roomId = initialData.roomId;
   const [playerOperation, setPlayerOperation] = useState<playerOperation>({
@@ -79,8 +80,7 @@ export default function Room({
   });
   const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
-  const createrDialogRef = useRef<HTMLDialogElement>(null);
-  const opponentDialogRef = useRef<HTMLDialogElement>(null);
+  const createrWaitingDialogRef = useRef<HTMLDialogElement>(null);
   const sittingPhaseDialogRef = useRef<HTMLDialogElement>(null);
   const activateDialogRef = useRef<HTMLDialogElement>(null);
   const turnResultDialogRef = useRef<HTMLDialogElement>(null);
@@ -88,11 +88,11 @@ export default function Room({
   const confirmDialogRef = useRef<HTMLDialogElement>(null);
   const startTurnDialogRef = useRef<HTMLDialogElement>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
-  const previousRoomDataRef = useRef<GameRoom | null>(null);
-  const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
-  const handleCrestorCloseModal = () => createrDialogRef.current?.close();
-  const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
-  const handleOpponentCloseModal = () => opponentDialogRef.current?.close();
+
+  const handleShowCreaterWaitingModal = () =>
+    createrWaitingDialogRef.current?.showModal();
+  const handleCloseCreaterWaitingModal = () =>
+    createrWaitingDialogRef.current?.close();
   const handleShowSittingPhaseModal = () =>
     sittingPhaseDialogRef.current?.showModal();
   const handleCloseSittingPhaseModal = () =>
@@ -292,32 +292,6 @@ export default function Room({
     setPlayerOperation(operation);
   };
 
-  useEffect(() => {
-    if (roomData?.createrId === userId) {
-      handleCreaterShowModal();
-    } else {
-      handleOpponentShowModal();
-    }
-
-    const watchRoom = async () => {
-      const db = await getFirestoreApp();
-      const docRef = doc(db, "rooms", roomId!);
-      const unsubscribe = onSnapshot(docRef, (doc) => {
-        const data = doc.data() as GameRoom;
-
-        setRoomData((prev) => {
-          if (data.round.phase === "activating") {
-            previousRoomDataRef.current = prev;
-          }
-          return data;
-        });
-        return () => unsubscribe();
-      });
-    };
-
-    watchRoom();
-  }, []);
-
   const isAllReady = () => {
     if (!roomData) return false;
     return (
@@ -328,9 +302,12 @@ export default function Room({
 
   useEffect(() => {
     if (!roomData) return;
+    if (!isAllReady() && roomData.createrId === userId) {
+      handleShowCreaterWaitingModal();
+    }
+
     if (isAllReady()) {
-      handleCrestorCloseModal();
-      handleOpponentCloseModal();
+      handleCloseCreaterWaitingModal();
 
       if (roomData.round.phase === "setting") {
         handleShowStartTurnModal();
@@ -442,7 +419,7 @@ export default function Room({
           確定
         </button>
       )}
-      <InfoDialog ref={createrDialogRef}>
+      <InfoDialog ref={createrWaitingDialogRef}>
         <div>
           <h2 className="font-semibold text-red-500">
             <span>ルームを作成しました</span>
