@@ -16,6 +16,7 @@ import InfoDialog from "@/components/modals/InfoDialog";
 import { useToast } from "@/utils/toast/useToast";
 import { Toast } from "@/utils/toast/Toast";
 import { useRoom } from "@/features/room/useRoom";
+import { copyToClipboard } from "@/utils/copyToClipboard";
 
 const renderChair = (
   chair: number,
@@ -120,7 +121,7 @@ export default function Room({
 
   const copyId = async () => {
     try {
-      await navigator.clipboard.writeText(roomId!);
+      await copyToClipboard(roomId!);
       tooltipRef.current?.open({
         anchorSelect: "#id-tooltip",
         content: "IDをコピーしました",
