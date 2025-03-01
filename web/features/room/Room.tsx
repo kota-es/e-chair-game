@@ -17,6 +17,7 @@ import { useToast } from "@/utils/toast/useToast";
 import { Toast } from "@/utils/toast/Toast";
 import { useRoom } from "@/features/room/useRoom";
 import { copyToClipboard } from "@/utils/copyToClipboard";
+import { usePropertyRefDialog } from "@/hooks/dialog/usePropertyRefDialog";
 
 const renderChair = (
   chair: number,
@@ -76,7 +77,6 @@ export default function Room({
   const userId = initialData.userId;
   const roomId = initialData.roomId;
   const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
-  const createrWaitingDialogRef = useRef<HTMLDialogElement>(null);
   const sittingPhaseDialogRef = useRef<HTMLDialogElement>(null);
   const activateDialogRef = useRef<HTMLDialogElement>(null);
   const turnResultDialogRef = useRef<HTMLDialogElement>(null);
@@ -84,10 +84,13 @@ export default function Room({
   const startTurnDialogRef = useRef<HTMLDialogElement>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
 
-  const handleShowCreaterWaitingModal = () =>
-    createrWaitingDialogRef.current?.showModal();
-  const handleCloseCreaterWaitingModal = () =>
-    createrWaitingDialogRef.current?.close();
+  const { dialogRef: waitingGameDialogRef } = usePropertyRefDialog({
+    data: roomData,
+    shouldShowDialog: (prev, current) =>
+      current?.createrId === userId && !isAllReady(),
+    shouldCloseDialog: () => isAllReady(),
+  });
+
   const handleShowSittingPhaseModal = () =>
     sittingPhaseDialogRef.current?.showModal();
   const handleCloseSittingPhaseModal = () =>
@@ -213,13 +216,8 @@ export default function Room({
 
   useEffect(() => {
     if (!roomData) return;
-    if (!isAllReady() && roomData.createrId === userId) {
-      handleShowCreaterWaitingModal();
-    }
 
     if (isAllReady()) {
-      handleCloseCreaterWaitingModal();
-
       if (roomData.round.phase === "setting") {
         handleShowStartTurnModal();
         setTimeout(() => {
@@ -328,7 +326,7 @@ export default function Room({
           確定
         </button>
       )}
-      <InfoDialog ref={createrWaitingDialogRef}>
+      <InfoDialog ref={waitingGameDialogRef}>
         <div>
           <h2 className="font-semibold text-red-500">
             <span>ルームを作成しました</span>
