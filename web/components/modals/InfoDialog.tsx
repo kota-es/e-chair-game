@@ -14,7 +14,7 @@ const InfoDialog = ({ ref, children, borderColor }: InfoDialogProps) => {
       ref={ref}
     >
       <div
-        className={`animate-scale-in grid gap-4 mx-1 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm bg-gray-800 border-2 ${border}`}
+        className={`animate-scale-in grid gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 ${border}`}
       >
         {children}
       </div>

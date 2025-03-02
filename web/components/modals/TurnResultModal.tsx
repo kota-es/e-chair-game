@@ -51,10 +51,10 @@ export default function TurnResultModal({
 
   return (
     <dialog
-      className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-transparent backdrop:bg-black/80 shadow-sm w-full"
+      className="min-w-fit max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  backdrop:bg-black/80 shadow-sm w-full"
       ref={ref}
     >
-      <div className="grid place-items-center gap-4 mx-1 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm bg-gray-800 border-2 border-red-500">
+      <div className="grid place-items-center gap-4 backdrop:bg-black/80 p-6 text-card-foreground shadow-sm w-full bg-gray-800 border-2 border-red-500">
         <div className="flex items-center flex-col gap-4">
           <h2 className="font-semibold text-red-500">
             <span className="text-3xl">{headingText}</span>

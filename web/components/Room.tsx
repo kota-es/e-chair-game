@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import useSound from "use-sound";
 
 import type { GameRoom, Player } from "@/types/room";
+import { getFirestoreApp } from "@/firestore/config";
+import { doc, onSnapshot } from "firebase/firestore";
 
 import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
@@ -14,10 +16,13 @@ import { Armchair, Copy, Zap } from "lucide-react";
 import { Tooltip, TooltipRefProps } from "react-tooltip";
 import InfoDialog from "@/components/modals/InfoDialog";
 import { useToast } from "@/utils/toast/useToast";
-import { Toast } from "@/utils/toast/Toast";
-import { useRoom } from "@/features/room/useRoom";
-import { copyToClipboard } from "@/utils/copyToClipboard";
-import { usePropertyRefDialog } from "@/hooks/dialog/usePropertyRefDialog";
+
+type playerOperation = {
+  setElectricShock: boolean;
+  selectSitChair: boolean;
+  activate: boolean;
+  wait: boolean;
+};
 
 const renderChair = (
   chair: number,
@@ -58,39 +63,35 @@ export default function Room({
     roomId: string | null;
   };
 }) {
-  const room = useRoom(initialData);
-  const {
-    roomData,
-    selectedChair,
-    setSelectedChair,
-    submitSelectedChair,
-    submitActivate,
-    changeTurn,
-    previousRoomDataRef,
-    playerOperation,
-  } = room;
   const [playShockEffect] = useSound("/sounds/shock.mp3");
   const [playSafeEffect] = useSound("/sounds/safe.mp3");
   const router = useRouter();
   const toast = useToast();
-
+  const [roomData, setRoomData] = useState<GameRoom | null>(initialData.room);
   const userId = initialData.userId;
   const roomId = initialData.roomId;
+  const [playerOperation, setPlayerOperation] = useState<playerOperation>({
+    setElectricShock: false,
+    selectSitChair: false,
+    activate: false,
+    wait: false,
+  });
   const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
+  const [selectedChair, setSelectedChair] = useState<number | null>(null);
+  const createrDialogRef = useRef<HTMLDialogElement>(null);
+  const opponentDialogRef = useRef<HTMLDialogElement>(null);
   const sittingPhaseDialogRef = useRef<HTMLDialogElement>(null);
   const activateDialogRef = useRef<HTMLDialogElement>(null);
   const turnResultDialogRef = useRef<HTMLDialogElement>(null);
   const gameResultDialogRef = useRef<HTMLDialogElement>(null);
+  const confirmDialogRef = useRef<HTMLDialogElement>(null);
   const startTurnDialogRef = useRef<HTMLDialogElement>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
-
-  const { dialogRef: waitingGameDialogRef } = usePropertyRefDialog({
-    data: roomData,
-    shouldShowDialog: (prev, current) =>
-      current?.createrId === userId && !isAllReady(),
-    shouldCloseDialog: () => isAllReady(),
-  });
-
+  const previousRoomDataRef = useRef<GameRoom | null>(null);
+  const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
+  const handleCrestorCloseModal = () => createrDialogRef.current?.close();
+  const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
+  const handleOpponentCloseModal = () => opponentDialogRef.current?.close();
   const handleShowSittingPhaseModal = () =>
     sittingPhaseDialogRef.current?.showModal();
   const handleCloseSittingPhaseModal = () =>
@@ -102,15 +103,25 @@ export default function Room({
   const handleCloseTurnResultModal = () => turnResultDialogRef.current?.close();
   const handleShowGameResultModal = () =>
     gameResultDialogRef.current?.showModal();
+  const handleCloseConfirmModal = () => confirmDialogRef.current?.close();
   const handleShowStartTurnModal = () =>
     startTurnDialogRef.current?.showModal();
   const handleCloseStartTurnModal = () => startTurnDialogRef.current?.close();
 
-  const handleSubmitSelectedChair = async () => {
-    if (!selectedChair) return;
-    const res = await submitSelectedChair();
+  const submitSelectedChair = async () => {
+    handleCloseConfirmModal();
+    const data = getSubmitRoundData(selectedChair);
+    const res = await fetch(`/api/rooms/${roomId}/round`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ data: data }),
+    });
     if (res.status !== 200) {
-      console.error(res.error);
+      const data = await res.json();
+      console.error(data.error);
+      return;
     }
     toast.open(
       <span>
@@ -124,7 +135,7 @@ export default function Room({
 
   const copyId = async () => {
     try {
-      await copyToClipboard(roomId!);
+      await navigator.clipboard.writeText(roomId!);
       tooltipRef.current?.open({
         anchorSelect: "#id-tooltip",
         content: "IDをコピーしました",
@@ -138,21 +149,66 @@ export default function Room({
     }
   };
 
-  const handleSubmitActivate = async () => {
+  const submitActivate = async () => {
     handleCloseActivateModal();
-    const res = await submitActivate();
+    const res = await fetch(`/api/rooms/${roomId}/activate`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     if (res.status !== 200) {
-      console.error(res.error);
+      const data = await res.json();
+      console.error(data.error);
     }
   };
 
-  const handleChangeTurn = async () => {
+  const changeTurn = async () => {
     handleCloseTurnResultModal();
-    const res = await changeTurn();
+    const res = await fetch(`/api/rooms/${roomId}/turn`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
     if (res.status !== 200) {
-      console.error(res.error);
+      const data = await res.json();
+      console.error(data.error);
     }
     setSelectedChair(null);
+  };
+
+  const getSubmitRoundData = (chair: number | null) => {
+    const round = roomData?.round;
+    if (playerOperation.setElectricShock) {
+      return {
+        ...round,
+        electricChair: chair,
+        phase: "sitting",
+      };
+    } else if (playerOperation.selectSitChair) {
+      return {
+        ...round,
+        seatedChair: chair,
+        phase: "activating",
+      };
+    } else if (playerOperation.activate) {
+      const electricChair = round?.electricChair;
+      const seatedChair = round?.seatedChair;
+      const resultStatus = electricChair === seatedChair ? "shocked" : "safe";
+      const result = round?.result;
+      return {
+        ...round,
+        result: {
+          ...result,
+          status: resultStatus,
+        },
+        phase: "result",
+      };
+    }
+
+    return round;
   };
 
   const myStatus = () => {
@@ -206,6 +262,61 @@ export default function Room({
     return "お待ちください。。。";
   };
 
+  const updatePlayerOperation = () => {
+    const operation: playerOperation = {
+      setElectricShock: false,
+      selectSitChair: false,
+      activate: false,
+      wait: false,
+    };
+    if (
+      roomData?.round.attackerId !== userId &&
+      roomData?.round.electricChair === null
+    ) {
+      operation.setElectricShock = true;
+    } else if (
+      roomData?.round.attackerId === userId &&
+      roomData?.round.electricChair !== null &&
+      roomData?.round.seatedChair === null
+    ) {
+      operation.selectSitChair = true;
+    } else if (
+      roomData?.round.phase === "activating" &&
+      roomData?.round.attackerId !== userId
+    ) {
+      operation.activate = true;
+    } else {
+      operation.wait = true;
+    }
+    setPlayerOperation(operation);
+  };
+
+  useEffect(() => {
+    if (roomData?.createrId === userId) {
+      handleCreaterShowModal();
+    } else {
+      handleOpponentShowModal();
+    }
+
+    const watchRoom = async () => {
+      const db = await getFirestoreApp();
+      const docRef = doc(db, "rooms", roomId!);
+      const unsubscribe = onSnapshot(docRef, (doc) => {
+        const data = doc.data() as GameRoom;
+
+        setRoomData((prev) => {
+          if (data.round.phase === "activating") {
+            previousRoomDataRef.current = prev;
+          }
+          return data;
+        });
+        return () => unsubscribe();
+      });
+    };
+
+    watchRoom();
+  }, []);
+
   const isAllReady = () => {
     if (!roomData) return false;
     return (
@@ -216,8 +327,10 @@ export default function Room({
 
   useEffect(() => {
     if (!roomData) return;
-
     if (isAllReady()) {
+      handleCrestorCloseModal();
+      handleOpponentCloseModal();
+
       if (roomData.round.phase === "setting") {
         handleShowStartTurnModal();
         setTimeout(() => {
@@ -264,6 +377,8 @@ export default function Room({
         }
       }, 1500);
     }
+
+    updatePlayerOperation();
   }, [roomData]);
 
   const toToP = () => {
@@ -314,19 +429,16 @@ export default function Room({
             </p>
           </div>
         )}
-        <div className="relative max-w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <Toast />
-        </div>
       </div>
       {!playerOperation.wait && !playerOperation.activate && selectedChair && (
         <button
           className="sticky bottom-3 inline-flex h-10 justify-center items-center rounded-full border-2 border-red-700 bg-red-500 font-bold text-sm text-white"
-          onClick={handleSubmitSelectedChair}
+          onClick={submitSelectedChair}
         >
           確定
         </button>
       )}
-      <InfoDialog ref={waitingGameDialogRef}>
+      <InfoDialog ref={createrDialogRef}>
         <div>
           <h2 className="font-semibold text-red-500">
             <span>ルームを作成しました</span>
@@ -357,7 +469,7 @@ export default function Room({
         </div>
         <button
           className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-          onClick={handleSubmitActivate}
+          onClick={submitActivate}
         >
           起動
         </button>
@@ -418,7 +530,7 @@ export default function Room({
         roomData={roomData!}
         previousRoomData={previousRoomDataRef.current!}
         userId={userId!}
-        close={handleChangeTurn}
+        close={changeTurn}
       />
       <GameResultModal
         ref={gameResultDialogRef}
