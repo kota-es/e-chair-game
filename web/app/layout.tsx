@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/utils/toast/ToastProvider";
-import { Toast } from "@/utils/toast/Toast";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -31,7 +30,6 @@ export default function RootLayout({
         <ToastProvider>
           <div className="w-full grid place-items-center bg-gray-900">
             <div className="w-full max-w-screen-md">{children}</div>
-            <Toast />
           </div>
         </ToastProvider>
       </body>
