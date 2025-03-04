@@ -1,4 +1,4 @@
-import Room from "@/components/Room";
+import Room from "@/features/room/page/Room";
 import type { GameRoom } from "@/types/room";
 import { cookies, headers } from "next/headers";
 
