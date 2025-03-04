@@ -10,12 +10,16 @@ import type { GameRoom, Player } from "@/types/room";
 import { getFirestoreApp } from "@/firestore/config";
 import { doc, onSnapshot } from "firebase/firestore";
 
+import WaitingStartDialog from "@/features/room/components/dialogs/WaitingStartDialog";
 import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
-import { Armchair, Copy, Zap } from "lucide-react";
-import { Tooltip, TooltipRefProps } from "react-tooltip";
+import { Armchair, Zap } from "lucide-react";
+import { TooltipRefProps } from "react-tooltip";
 import InfoDialog from "@/components/modals/InfoDialog";
 import { useToast } from "@/utils/toast/useToast";
+import NoticeSatDialog from "@/features/room/components/dialogs/NoticeSatDialog";
+import NoticeSetDialog from "@/features/room/components/dialogs/NoticeSetDialog";
+import StartTurnDialog from "@/features/room/components/dialogs/StartTurnDialog";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -78,7 +82,7 @@ export default function Room({
   });
   const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
-  const createrDialogRef = useRef<HTMLDialogElement>(null);
+  const waitingStartDialogRef = useRef<HTMLDialogElement>(null);
   const opponentDialogRef = useRef<HTMLDialogElement>(null);
   const sittingPhaseDialogRef = useRef<HTMLDialogElement>(null);
   const activateDialogRef = useRef<HTMLDialogElement>(null);
@@ -88,8 +92,10 @@ export default function Room({
   const startTurnDialogRef = useRef<HTMLDialogElement>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
   const previousRoomDataRef = useRef<GameRoom | null>(null);
-  const handleCreaterShowModal = () => createrDialogRef.current?.showModal();
-  const handleCrestorCloseModal = () => createrDialogRef.current?.close();
+  const handleShowWaitingSTartModal = () =>
+    waitingStartDialogRef.current?.showModal();
+  const handleCloseWaitingStartModal = () =>
+    waitingStartDialogRef.current?.close();
   const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
   const handleOpponentCloseModal = () => opponentDialogRef.current?.close();
   const handleShowSittingPhaseModal = () =>
@@ -293,7 +299,7 @@ export default function Room({
 
   useEffect(() => {
     if (roomData?.createrId === userId) {
-      handleCreaterShowModal();
+      handleShowWaitingSTartModal();
     } else {
       handleOpponentShowModal();
     }
@@ -328,7 +334,7 @@ export default function Room({
   useEffect(() => {
     if (!roomData) return;
     if (isAllReady()) {
-      handleCrestorCloseModal();
+      handleCloseWaitingStartModal();
       handleOpponentCloseModal();
 
       if (roomData.round.phase === "setting") {
@@ -438,93 +444,22 @@ export default function Room({
           確定
         </button>
       )}
-      <InfoDialog ref={createrDialogRef}>
-        <div>
-          <h2 className="font-semibold text-red-500">
-            <span>ルームを作成しました</span>
-          </h2>
-          <p className="pt-1 text-gray-300">
-            下記のルームIDを対戦相手に伝えてください。
-          </p>
-          <p className="pt-1 text-gray-300">
-            対戦相手が入室しだい、ゲームを開始します。
-          </p>
-        </div>
-        <div className="flex gap-2 m-auto text-center text-2xl text-red-500">
-          <span>{roomId}</span>
-          <div>
-            <Tooltip ref={tooltipRef} style={{ fontSize: "16px" }} />
-            <a id="id-tooltip" className="cursor-pointer" onClick={copyId}>
-              <Copy className="text-red-800" />
-            </a>
-          </div>
-        </div>
-      </InfoDialog>
-      <InfoDialog ref={activateDialogRef}>
-        <div>
-          <h2 className="font-semibold text-red-500">
-            <span>相手が椅子に座りました</span>
-          </h2>
-          <p className="pt-1 text-gray-300">電流を起動してください</p>
-        </div>
-        <button
-          className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-          onClick={submitActivate}
-        >
-          起動
-        </button>
-      </InfoDialog>
-
-      <InfoDialog ref={sittingPhaseDialogRef}>
-        <div>
-          <h2 className="font-semibold text-red-500">
-            <span>相手が電気椅子を仕掛けました</span>
-          </h2>
-          <p className="pt-1 text-gray-300">座る椅子を選択してください</p>
-        </div>
-        <button
-          className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-          onClick={handleCloseSittingPhaseModal}
-        >
-          OK
-        </button>
-      </InfoDialog>
-      <InfoDialog
-        ref={startTurnDialogRef}
-        borderColor={
-          roomData?.round.attackerId === userId
-            ? "border-emerald-500"
-            : "border-orange-500"
-        }
-      >
-        <div className="animate-flip-in-ver-right flex flex-col items-center gap-4">
-          <h2
-            className={`font-semibold text-3xl ${
-              roomData?.round.attackerId === userId
-                ? "text-emerald-500"
-                : "text-orange-500"
-            }`}
-          >
-            {roomData?.round.count === 1 && roomData?.round.turn === "top" ? (
-              <span>ゲーム開始</span>
-            ) : (
-              <span>攻守交代</span>
-            )}
-          </h2>
-          <p className="pt-1 text-lg font-bold text-gray-300">
-            {roomData?.round.attackerId === userId
-              ? "電流を避けて椅子に座れ"
-              : "電流を仕掛けて相手に座らせろ"}
-          </p>
-          <div className="flex justify-center">
-            {roomData?.round.attackerId === userId ? (
-              <Armchair className="w-24 h-24 text-emerald-500 animate-pulse" />
-            ) : (
-              <Zap className="w-24 h-24 text-orange-500 animate-pulse" />
-            )}
-          </div>
-        </div>
-      </InfoDialog>
+      <WaitingStartDialog
+        roomId={roomId!}
+        dialogRef={waitingStartDialogRef}
+        tooltipRef={tooltipRef}
+        copyId={copyId}
+      />
+      <NoticeSatDialog dialogRef={activateDialogRef} action={submitActivate} />
+      <NoticeSetDialog
+        dialogRef={sittingPhaseDialogRef}
+        action={handleCloseSittingPhaseModal}
+      />
+      <StartTurnDialog
+        dialogRef={startTurnDialogRef}
+        round={roomData!.round}
+        userId={userId!}
+      />
       <TurnResultModal
         ref={turnResultDialogRef}
         roomData={roomData!}
