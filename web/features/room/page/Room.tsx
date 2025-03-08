@@ -10,16 +10,16 @@ import type { GameRoom, Player } from "@/types/room";
 import { getFirestoreApp } from "@/firestore/config";
 import { doc, onSnapshot } from "firebase/firestore";
 
-import WaitingStartDialog from "@/features/room/components/dialogs/WaitingStartDialog";
+import CreaterWaitingStartDialog from "@/features/room/components/dialogs/CreaterWaitingStartDialog";
 import TurnResultModal from "@/components/modals/TurnResultModal";
 import GameResultModal from "@/components/modals/GameResultModal";
-import { Armchair, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { TooltipRefProps } from "react-tooltip";
-import InfoDialog from "@/components/modals/InfoDialog";
 import { useToast } from "@/utils/toast/useToast";
-import NoticeSatDialog from "@/features/room/components/dialogs/NoticeSatDialog";
+import ActivateShockDialog from "@/features/room/components/dialogs/ActivateShockDialog";
 import NoticeSetDialog from "@/features/room/components/dialogs/NoticeSetDialog";
 import StartTurnDialog from "@/features/room/components/dialogs/StartTurnDialog";
+import useDialog from "@/hooks/useDialog";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -82,40 +82,40 @@ export default function Room({
   });
   const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
-  const waitingStartDialogRef = useRef<HTMLDialogElement>(null);
-  const opponentDialogRef = useRef<HTMLDialogElement>(null);
-  const sittingPhaseDialogRef = useRef<HTMLDialogElement>(null);
-  const activateDialogRef = useRef<HTMLDialogElement>(null);
-  const turnResultDialogRef = useRef<HTMLDialogElement>(null);
-  const gameResultDialogRef = useRef<HTMLDialogElement>(null);
-  const confirmDialogRef = useRef<HTMLDialogElement>(null);
-  const startTurnDialogRef = useRef<HTMLDialogElement>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
   const previousRoomDataRef = useRef<GameRoom | null>(null);
-  const handleShowWaitingSTartModal = () =>
-    waitingStartDialogRef.current?.showModal();
-  const handleCloseWaitingStartModal = () =>
-    waitingStartDialogRef.current?.close();
-  const handleOpponentShowModal = () => opponentDialogRef.current?.showModal();
-  const handleOpponentCloseModal = () => opponentDialogRef.current?.close();
-  const handleShowSittingPhaseModal = () =>
-    sittingPhaseDialogRef.current?.showModal();
-  const handleCloseSittingPhaseModal = () =>
-    sittingPhaseDialogRef.current?.close();
-  const handleShowActivateModal = () => activateDialogRef.current?.showModal();
-  const handleCloseActivateModal = () => activateDialogRef.current?.close();
-  const handleShowTurnResultModal = () =>
-    turnResultDialogRef.current?.showModal();
-  const handleCloseTurnResultModal = () => turnResultDialogRef.current?.close();
-  const handleShowGameResultModal = () =>
-    gameResultDialogRef.current?.showModal();
-  const handleCloseConfirmModal = () => confirmDialogRef.current?.close();
-  const handleShowStartTurnModal = () =>
-    startTurnDialogRef.current?.showModal();
-  const handleCloseStartTurnModal = () => startTurnDialogRef.current?.close();
+
+  const {
+    dialogRef: waitingCreaterStartDialogRef,
+    showModal: showCreaterWaitingStartModa,
+    closeModal: closeCreaterWaitingStartModal,
+  } = useDialog();
+
+  const { dialogRef: startTurnDialogRef, showModal: showStartTurnModal } =
+    useDialog();
+
+  const {
+    dialogRef: noticeSetDialogRef,
+    showModal: showNoticeSetModal,
+    closeModal: closeNoticeSetModal,
+  } = useDialog();
+
+  const {
+    dialogRef: activateShockDialogRef,
+    showModal: showActivateShockModal,
+    closeModal: closeActivateShockModal,
+  } = useDialog();
+
+  const {
+    dialogRef: turnResultDialogRef,
+    showModal: showTurnResultModal,
+    closeModal: closeTurnResultModal,
+  } = useDialog();
+
+  const { dialogRef: gameResultDialogRef, showModal: showGameResultModal } =
+    useDialog();
 
   const submitSelectedChair = async () => {
-    handleCloseConfirmModal();
     const data = getSubmitRoundData(selectedChair);
     const res = await fetch(`/api/rooms/${roomId}/round`, {
       method: "PATCH",
@@ -156,7 +156,7 @@ export default function Room({
   };
 
   const submitActivate = async () => {
-    handleCloseActivateModal();
+    closeActivateShockModal();
     const res = await fetch(`/api/rooms/${roomId}/activate`, {
       method: "PATCH",
       headers: {
@@ -170,7 +170,7 @@ export default function Room({
   };
 
   const changeTurn = async () => {
-    handleCloseTurnResultModal();
+    closeTurnResultModal();
     const res = await fetch(`/api/rooms/${roomId}/turn`, {
       method: "PATCH",
       headers: {
@@ -298,12 +298,6 @@ export default function Room({
   };
 
   useEffect(() => {
-    if (roomData?.createrId === userId) {
-      handleShowWaitingSTartModal();
-    } else {
-      handleOpponentShowModal();
-    }
-
     const watchRoom = async () => {
       const db = await getFirestoreApp();
       const docRef = doc(db, "rooms", roomId!);
@@ -333,32 +327,31 @@ export default function Room({
 
   useEffect(() => {
     if (!roomData) return;
+
+    if (!isAllReady()) {
+      if (roomData?.createrId === userId) {
+        showCreaterWaitingStartModa();
+      }
+    }
     if (isAllReady()) {
-      handleCloseWaitingStartModal();
-      handleOpponentCloseModal();
+      closeCreaterWaitingStartModal();
 
       if (roomData.round.phase === "setting") {
-        handleShowStartTurnModal();
-        setTimeout(() => {
-          handleCloseStartTurnModal();
-        }, 3000);
+        showStartTurnModal(2000);
       }
 
       if (
         roomData.round.phase === "sitting" &&
         roomData.round.attackerId === userId
       ) {
-        handleShowSittingPhaseModal();
-        setTimeout(() => {
-          handleCloseSittingPhaseModal();
-        }, 3000);
+        showNoticeSetModal(3000);
       }
     }
     if (
       roomData.round.attackerId !== userId &&
       roomData.round.phase === "activating"
     ) {
-      handleShowActivateModal();
+      showActivateShockModal();
     }
     if (
       roomData.round.phase === "result" &&
@@ -377,9 +370,9 @@ export default function Room({
       setTimeout(() => {
         setShowShock("");
         if (roomData.winnerId) {
-          handleShowGameResultModal();
+          showGameResultModal();
         } else {
-          handleShowTurnResultModal();
+          showTurnResultModal();
         }
       }, 1500);
     }
@@ -444,16 +437,19 @@ export default function Room({
           確定
         </button>
       )}
-      <WaitingStartDialog
+      <CreaterWaitingStartDialog
         roomId={roomId!}
-        dialogRef={waitingStartDialogRef}
+        dialogRef={waitingCreaterStartDialogRef}
         tooltipRef={tooltipRef}
         copyId={copyId}
       />
-      <NoticeSatDialog dialogRef={activateDialogRef} action={submitActivate} />
+      <ActivateShockDialog
+        dialogRef={activateShockDialogRef}
+        action={submitActivate}
+      />
       <NoticeSetDialog
-        dialogRef={sittingPhaseDialogRef}
-        action={handleCloseSittingPhaseModal}
+        dialogRef={noticeSetDialogRef}
+        action={closeNoticeSetModal}
       />
       <StartTurnDialog
         dialogRef={startTurnDialogRef}

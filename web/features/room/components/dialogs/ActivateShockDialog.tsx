@@ -1,15 +1,15 @@
 import InfoDialog from "@/components/modals/InfoDialog";
 import { Ref } from "react";
 
-type NoticeSatDialogProps = {
+type ActivateShockDialogProps = {
   dialogRef: Ref<HTMLDialogElement>;
   action: () => void;
 };
 
-export default function NoticeSatDialog({
+export default function ActivateShockDialog({
   dialogRef,
   action,
-}: NoticeSatDialogProps) {
+}: ActivateShockDialogProps) {
   return (
     <InfoDialog ref={dialogRef}>
       <div>
