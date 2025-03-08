@@ -3,19 +3,19 @@ import { Copy } from "lucide-react";
 import { Ref } from "react";
 import { Tooltip, TooltipRefProps } from "react-tooltip";
 
-type WaitingStartDialogProps = {
+type CreaterWaitingStartDialogProps = {
   roomId: string;
   dialogRef: Ref<HTMLDialogElement>;
   tooltipRef: Ref<TooltipRefProps>;
   copyId: () => void;
 };
 
-export default function WaitingStartDialog({
+export default function CreaterWaitingStartDialog({
   roomId,
   dialogRef,
   tooltipRef,
   copyId,
-}: WaitingStartDialogProps) {
+}: CreaterWaitingStartDialogProps) {
   return (
     <InfoDialog ref={dialogRef}>
       <div>
