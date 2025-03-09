@@ -427,7 +427,7 @@ export default function Room({
         userId={userId!}
         close={toToP}
       />
-      if(showShock) {<ActivateEffect result={showShock} />}
+      <ActivateEffect result={showShock} />
     </RoomContainer>
   );
 }

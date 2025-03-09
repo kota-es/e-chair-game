@@ -21,4 +21,5 @@ export function ActivateEffect({ result }: ActivateEffextProps) {
       </div>
     );
   }
+  return null;
 }
