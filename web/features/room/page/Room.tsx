@@ -1,26 +1,25 @@
 "use client";
 
-import PlayerStatus from "@/components/PlayerStatus";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { doc, onSnapshot } from "firebase/firestore";
+import { TooltipRefProps } from "react-tooltip";
+import { Zap } from "lucide-react";
 import useSound from "use-sound";
 
-import type { GameRoom, Player } from "@/types/room";
 import { getFirestoreApp } from "@/firestore/config";
-import { doc, onSnapshot } from "firebase/firestore";
-
-import CreaterWaitingStartDialog from "@/features/room/components/dialogs/CreaterWaitingStartDialog";
-import TurnResultModal from "@/components/modals/TurnResultModal";
-import GameResultModal from "@/components/modals/GameResultModal";
-import { Zap } from "lucide-react";
-import { TooltipRefProps } from "react-tooltip";
-import { useToast } from "@/utils/toast/useToast";
+import { Chair } from "@/features/room/components/Chair";
 import ActivateShockDialog from "@/features/room/components/dialogs/ActivateShockDialog";
+import CreaterWaitingStartDialog from "@/features/room/components/dialogs/CreaterWaitingStartDialog";
 import NoticeSetDialog from "@/features/room/components/dialogs/NoticeSetDialog";
 import StartTurnDialog from "@/features/room/components/dialogs/StartTurnDialog";
+import GameResultDialog from "@/features/room/components/dialogs/GameResultDialog";
+import TurnResultDialog from "@/features/room/components/dialogs/TurnResultDialog";
+import PlayerStatus from "@/features/room/components/PlayerStatus";
 import useDialog from "@/hooks/useDialog";
-import { Chair } from "@/features/room/components/Chair";
+import { useToast } from "@/utils/toast/useToast";
+
+import type { GameRoom, Player } from "@/types/room";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -428,14 +427,14 @@ export default function Room({
         round={roomData!.round}
         userId={userId!}
       />
-      <TurnResultModal
+      <TurnResultDialog
         ref={turnResultDialogRef}
         roomData={roomData!}
         previousRoomData={previousRoomDataRef.current!}
         userId={userId!}
         close={changeTurn}
       />
-      <GameResultModal
+      <GameResultDialog
         ref={gameResultDialogRef}
         roomData={roomData!}
         userId={userId!}

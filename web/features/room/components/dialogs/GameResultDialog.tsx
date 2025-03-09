@@ -2,19 +2,19 @@ import { GameRoom } from "@/types/room";
 import { Skull, Trophy, Meh } from "lucide-react";
 import { Ref } from "react";
 
-type GameResultModalProps = {
+type GameResultDialogProps = {
   ref: Ref<HTMLDialogElement>;
   roomData: GameRoom;
   userId: string;
   close: () => void;
 };
 
-export default function GameResultModal({
+export default function GameResultDialog({
   ref,
   roomData,
   userId,
   close,
-}: GameResultModalProps) {
+}: GameResultDialogProps) {
   const isWinner = roomData?.winnerId === userId;
   const isDraw = roomData?.winnerId === "draw";
 

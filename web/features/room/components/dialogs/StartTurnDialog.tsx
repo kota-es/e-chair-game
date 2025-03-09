@@ -1,4 +1,4 @@
-import InfoDialog from "@/components/modals/InfoDialog";
+import InfoDialog from "@/components/dialogs/InfoDialog";
 import { Round } from "@/types/room";
 import { Armchair, Zap } from "lucide-react";
 import { Ref } from "react";

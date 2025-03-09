@@ -1,4 +1,4 @@
-import InfoDialog from "@/components/modals/InfoDialog";
+import InfoDialog from "@/components/dialogs/InfoDialog";
 import { Ref } from "react";
 
 type NoticeSetDialogProps = {

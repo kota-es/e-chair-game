@@ -3,7 +3,7 @@
 import { Bolt } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import InfoDialog from "@/components/modals/InfoDialog";
+import InfoDialog from "@/components/dialogs/InfoDialog";
 
 export default function HomePage() {
   const router = useRouter();

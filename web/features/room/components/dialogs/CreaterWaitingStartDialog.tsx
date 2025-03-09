@@ -1,4 +1,4 @@
-import InfoDialog from "@/components/modals/InfoDialog";
+import InfoDialog from "@/components/dialogs/InfoDialog";
 import { Copy } from "lucide-react";
 import { Ref } from "react";
 import { Tooltip, TooltipRefProps } from "react-tooltip";

@@ -2,7 +2,7 @@ import { GameRoom } from "@/types/room";
 import { ChevronRight } from "lucide-react";
 import { Ref } from "react";
 
-type TurnResultModalProps = {
+type TurnResultDialogProps = {
   ref: Ref<HTMLDialogElement>;
   roomData: GameRoom;
   previousRoomData: GameRoom;
@@ -10,13 +10,13 @@ type TurnResultModalProps = {
   close: () => void;
 };
 
-export default function TurnResultModal({
+export default function TurnResultDialog({
   ref,
   roomData,
   previousRoomData,
   userId,
   close,
-}: TurnResultModalProps) {
+}: TurnResultDialogProps) {
   const isAttacker = roomData?.round?.attackerId === userId;
   const isShocked = roomData?.round?.result.status === "shocked";
 
