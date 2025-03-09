@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, onSnapshot } from "firebase/firestore";
 import { TooltipRefProps } from "react-tooltip";
-import { Zap } from "lucide-react";
 import useSound from "use-sound";
 
 import { getFirestoreApp } from "@/firestore/config";
@@ -23,6 +22,7 @@ import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultD
 
 import type { GameRoom, Player } from "@/types/room";
 import { InstructionMessage } from "@/features/room/components/InstructionMessage";
+import { ActivateEffect } from "@/features/room/components/ActivateEffect";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -428,18 +428,7 @@ export default function Room({
         userId={userId!}
         close={toToP}
       />
-      {showShock === "shock" && (
-        <div className="fixed inset-0 bg-yellow-300 bg-opacity-70 flex items-center justify-center z-50">
-          <Zap className="animate-shock-vibrate text-red-700 w-48 h-48 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
-        </div>
-      )}
-      {showShock === "safe" && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="animate-pulse text-white w-48 h-48 text-center flex justify-center">
-            <span className="font-bold text-9xl">SAFE</span>
-          </div>
-        </div>
-      )}
+      if(showShock) {<ActivateEffect result={showShock} />}
     </div>
   );
 }
