@@ -27,6 +27,7 @@ import { RoomContainer } from "@/features/room/components/RoomContainer";
 import { GameStatusContainer } from "@/features/room/components/GameStatusContainer";
 import { ChairContainer } from "@/features/room/components/ChairContainer";
 import { InstructionContainer } from "@/features/room/components/InstructionContainer";
+import { PlayerStatusContainer } from "@/features/room/components/PlayerStatusContainer";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -340,10 +341,10 @@ export default function Room({
     <RoomContainer>
       <GameStatusContainer>
         <RoundStatus round={roomData?.round} userId={userId} />
-        <div className="grid grid-cols-2 gap-4">
+        <PlayerStatusContainer>
           <PlayerStatus userId={userId} status={myStatus()} />
           <PlayerStatus userId={userId} status={opponentStatus()} />
-        </div>
+        </PlayerStatusContainer>
       </GameStatusContainer>
       <ChairContainer>
         {roomData?.remainingChairs.map((chair) => (
