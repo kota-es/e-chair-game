@@ -23,6 +23,7 @@ import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultD
 import type { GameRoom, Player } from "@/types/room";
 import { InstructionMessage } from "@/features/room/components/InstructionMessage";
 import { ActivateEffect } from "@/features/room/components/ActivateEffect";
+import { RoomContainer } from "@/features/room/components/RoomContainer";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -358,7 +359,7 @@ export default function Room({
   };
 
   return (
-    <div className="min-h-screen text-white p-4 grid grid-cols-1 auto-rows-max gap-8">
+    <RoomContainer>
       <div
         id="card"
         className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
@@ -429,6 +430,6 @@ export default function Room({
         close={toToP}
       />
       if(showShock) {<ActivateEffect result={showShock} />}
-    </div>
+    </RoomContainer>
   );
 }
