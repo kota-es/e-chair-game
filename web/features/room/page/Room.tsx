@@ -22,6 +22,7 @@ import { GameResultDialog } from "@/features/room/components/dialogs/GameResultD
 import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultDialog";
 
 import type { GameRoom, Player } from "@/types/room";
+import { InstructionMessage } from "@/features/room/components/InstructionMessage";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -379,18 +380,11 @@ export default function Room({
           />
         ))}
         {isAllReady() && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <p
-              className={`font-bold text-white text-sm bg-gray-800 bg-opacity-75 p-3 rounded-full whitespace-nowrap
-              ${
-                (playerOperation.setElectricShock ||
-                  playerOperation.selectSitChair) &&
-                "animate-pulse"
-              }
-              `}
-            >
-              {getInstruction()}
-            </p>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <InstructionMessage
+              needAction={!playerOperation.wait}
+              message={getInstruction()}
+            />
           </div>
         )}
       </div>
