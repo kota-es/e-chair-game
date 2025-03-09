@@ -1,4 +1,4 @@
-import InfoDialog from "@/components/dialogs/InfoDialog";
+import { InfoDialog } from "@/components/dialogs/InfoDialog";
 import { Ref } from "react";
 
 type NoticeSetDialogProps = {
@@ -6,10 +6,7 @@ type NoticeSetDialogProps = {
   action: () => void;
 };
 
-export default function NoticeSetDialog({
-  dialogRef,
-  action,
-}: NoticeSetDialogProps) {
+export function NoticeSetDialog({ dialogRef, action }: NoticeSetDialogProps) {
   return (
     <InfoDialog ref={dialogRef}>
       <div>

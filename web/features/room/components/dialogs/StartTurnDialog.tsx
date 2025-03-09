@@ -1,4 +1,4 @@
-import InfoDialog from "@/components/dialogs/InfoDialog";
+import { InfoDialog } from "@/components/dialogs/InfoDialog";
 import { Round } from "@/types/room";
 import { Armchair, Zap } from "lucide-react";
 import { Ref } from "react";
@@ -9,7 +9,7 @@ type StartTurnDialogProps = {
   userId: string;
 };
 
-export default function StartTurnDialog({
+export function StartTurnDialog({
   dialogRef,
   round,
   userId,

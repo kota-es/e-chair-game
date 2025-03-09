@@ -1,4 +1,4 @@
-import InfoDialog from "@/components/dialogs/InfoDialog";
+import { InfoDialog } from "@/components/dialogs/InfoDialog";
 import { Copy } from "lucide-react";
 import { Ref } from "react";
 import { Tooltip, TooltipRefProps } from "react-tooltip";
@@ -10,7 +10,7 @@ type CreaterWaitingStartDialogProps = {
   copyId: () => void;
 };
 
-export default function CreaterWaitingStartDialog({
+export function CreaterWaitingStartDialog({
   roomId,
   dialogRef,
   tooltipRef,

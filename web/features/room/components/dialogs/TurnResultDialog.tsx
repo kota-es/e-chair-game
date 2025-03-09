@@ -10,7 +10,7 @@ type TurnResultDialogProps = {
   close: () => void;
 };
 
-export default function TurnResultDialog({
+export function TurnResultDialog({
   ref,
   roomData,
   previousRoomData,

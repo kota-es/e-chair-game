@@ -6,7 +6,7 @@ type InfoDialogProps = {
   borderColor?: string | undefined;
 };
 
-const InfoDialog = ({ ref, children, borderColor }: InfoDialogProps) => {
+export function InfoDialog({ ref, children, borderColor }: InfoDialogProps) {
   const border = borderColor ? borderColor : "border-red-500";
   return (
     <dialog
@@ -20,6 +20,4 @@ const InfoDialog = ({ ref, children, borderColor }: InfoDialogProps) => {
       </div>
     </dialog>
   );
-};
-
-export default InfoDialog;
+}

@@ -8,17 +8,18 @@ import { Zap } from "lucide-react";
 import useSound from "use-sound";
 
 import { getFirestoreApp } from "@/firestore/config";
-import { Chair } from "@/features/room/components/Chair";
-import ActivateShockDialog from "@/features/room/components/dialogs/ActivateShockDialog";
-import CreaterWaitingStartDialog from "@/features/room/components/dialogs/CreaterWaitingStartDialog";
-import NoticeSetDialog from "@/features/room/components/dialogs/NoticeSetDialog";
-import StartTurnDialog from "@/features/room/components/dialogs/StartTurnDialog";
-import GameResultDialog from "@/features/room/components/dialogs/GameResultDialog";
-import TurnResultDialog from "@/features/room/components/dialogs/TurnResultDialog";
-import PlayerStatus from "@/features/room/components/PlayerStatus";
-import { RoundStatus } from "@/features/room/components/RoundStatus";
-import useDialog from "@/hooks/useDialog";
+import { useDialog } from "@/hooks/useDialog";
 import { useToast } from "@/utils/toast/useToast";
+
+import { Chair } from "@/features/room/components/Chair";
+import { PlayerStatus } from "@/features/room/components/PlayerStatus";
+import { RoundStatus } from "@/features/room/components/RoundStatus";
+import { ActivateShockDialog } from "@/features/room/components/dialogs/ActivateShockDialog";
+import { CreaterWaitingStartDialog } from "@/features/room/components/dialogs/CreaterWaitingStartDialog";
+import { NoticeSetDialog } from "@/features/room/components/dialogs/NoticeSetDialog";
+import { StartTurnDialog } from "@/features/room/components/dialogs/StartTurnDialog";
+import { GameResultDialog } from "@/features/room/components/dialogs/GameResultDialog";
+import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultDialog";
 
 import type { GameRoom, Player } from "@/types/room";
 

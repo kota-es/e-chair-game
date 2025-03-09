@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-export default function useDialog() {
+export function useDialog() {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const [isShow, setIsShow] = useState(false);
 

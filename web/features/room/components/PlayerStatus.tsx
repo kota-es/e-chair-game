@@ -6,7 +6,7 @@ type PlayerStatusProps = {
   status: Player;
 };
 
-export default function PlayerStatus({ userId, status }: PlayerStatusProps) {
+export function PlayerStatus({ userId, status }: PlayerStatusProps) {
   const playerName = status?.id === userId ? "あなた" : "相手";
   return (
     <div className="p-6 bg-gray-700 text-center rounded-lg">

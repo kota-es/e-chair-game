@@ -1,4 +1,4 @@
-import InfoDialog from "@/components/dialogs/InfoDialog";
+import { InfoDialog } from "@/components/dialogs/InfoDialog";
 import { Ref } from "react";
 
 type ActivateShockDialogProps = {
@@ -6,7 +6,7 @@ type ActivateShockDialogProps = {
   action: () => void;
 };
 
-export default function ActivateShockDialog({
+export function ActivateShockDialog({
   dialogRef,
   action,
 }: ActivateShockDialogProps) {

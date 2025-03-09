@@ -9,7 +9,7 @@ type GameResultDialogProps = {
   close: () => void;
 };
 
-export default function GameResultDialog({
+export function GameResultDialog({
   ref,
   roomData,
   userId,
