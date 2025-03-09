@@ -24,6 +24,7 @@ import type { GameRoom, Player } from "@/types/room";
 import { InstructionMessage } from "@/features/room/components/InstructionMessage";
 import { ActivateEffect } from "@/features/room/components/ActivateEffect";
 import { RoomContainer } from "@/features/room/components/RoomContainer";
+import { GameStatusContainer } from "@/features/room/components/GameStatusContainer";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -360,16 +361,13 @@ export default function Room({
 
   return (
     <RoomContainer>
-      <div
-        id="card"
-        className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
-      >
+      <GameStatusContainer>
         <RoundStatus round={roomData?.round} userId={userId} />
         <div className="grid grid-cols-2 gap-4">
           <PlayerStatus userId={userId} status={myStatus()} />
           <PlayerStatus userId={userId} status={opponentStatus()} />
         </div>
-      </div>
+      </GameStatusContainer>
       <div className="relative w-full max-w-md aspect-square mx-auto">
         {roomData?.remainingChairs.map((chair) => (
           <Chair
