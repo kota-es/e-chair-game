@@ -25,6 +25,8 @@ import { InstructionMessage } from "@/features/room/components/InstructionMessag
 import { ActivateEffect } from "@/features/room/components/ActivateEffect";
 import { RoomContainer } from "@/features/room/components/RoomContainer";
 import { GameStatusContainer } from "@/features/room/components/GameStatusContainer";
+import { ChairContainer } from "@/features/room/components/ChairContainer";
+import { InstructionContainer } from "@/features/room/components/InstructionContainer";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -343,7 +345,7 @@ export default function Room({
           <PlayerStatus userId={userId} status={opponentStatus()} />
         </div>
       </GameStatusContainer>
-      <div className="relative w-full max-w-md aspect-square mx-auto">
+      <ChairContainer>
         {roomData?.remainingChairs.map((chair) => (
           <Chair
             key={chair}
@@ -354,15 +356,15 @@ export default function Room({
           />
         ))}
         {isAllReady() && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <InstructionContainer>
             <InstructionMessage
               playerOperation={playerOperation}
               round={roomData?.round}
               userId={userId}
             />
-          </div>
+          </InstructionContainer>
         )}
-      </div>
+      </ChairContainer>
       {!playerOperation.wait && !playerOperation.activate && selectedChair && (
         <button
           className="sticky bottom-3 inline-flex h-10 justify-center items-center rounded-full border-2 border-red-700 bg-red-500 font-bold text-sm text-white"
