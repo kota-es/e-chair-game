@@ -16,6 +16,7 @@ import StartTurnDialog from "@/features/room/components/dialogs/StartTurnDialog"
 import GameResultDialog from "@/features/room/components/dialogs/GameResultDialog";
 import TurnResultDialog from "@/features/room/components/dialogs/TurnResultDialog";
 import PlayerStatus from "@/features/room/components/PlayerStatus";
+import { RoundStatus } from "@/features/room/components/RoundStatus";
 import useDialog from "@/hooks/useDialog";
 import { useToast } from "@/utils/toast/useToast";
 
@@ -360,15 +361,7 @@ export default function Room({
         id="card"
         className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
       >
-        <div className="text-center text-lg">
-          {roomData?.round?.count}回{" "}
-          {roomData?.round.turn === "top" ? "表" : "裏"}
-          <div>
-            {roomData?.round.attackerId === userId
-              ? "攻撃ターン：電気椅子を避けて座れ！"
-              : "守備ターン：電気椅子に座らせろ！"}
-          </div>
-        </div>
+        <RoundStatus round={roomData?.round} userId={userId} />
         <div className="grid grid-cols-2 gap-4">
           <PlayerStatus userId={userId} status={myStatus()} />
           <PlayerStatus userId={userId} status={opponentStatus()} />
