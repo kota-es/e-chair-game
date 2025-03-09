@@ -218,31 +218,6 @@ export default function Room({
     return player;
   };
 
-  const getInstruction = () => {
-    if (playerOperation.setElectricShock) {
-      return "電流を仕掛ける椅子を選んでください";
-    }
-    if (playerOperation.selectSitChair) {
-      return "座る椅子を選んでください";
-    }
-    if (playerOperation.wait) {
-      if (roomData?.round.phase === "setting") {
-        return "相手が電流を仕掛けています。。。";
-      }
-      if (roomData?.round.phase === "sitting") {
-        return "相手が座る椅子を選んでいます。。。";
-      }
-      if (roomData?.round.phase === "activating") {
-        if (roomData?.round.attackerId === userId) {
-          return "まもなく電流が起動します。。。";
-        } else {
-          return "電流を起動してください";
-        }
-      }
-    }
-    return "お待ちください。。。";
-  };
-
   const updatePlayerOperation = () => {
     const operation: playerOperation = {
       setElectricShock: false,
@@ -381,8 +356,9 @@ export default function Room({
         {isAllReady() && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <InstructionMessage
-              needAction={!playerOperation.wait}
-              message={getInstruction()}
+              playerOperation={playerOperation}
+              round={roomData?.round}
+              userId={userId}
             />
           </div>
         )}
