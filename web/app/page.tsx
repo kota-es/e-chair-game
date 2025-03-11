@@ -4,6 +4,7 @@ import { Bolt } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { InfoDialog } from "@/components/dialogs/InfoDialog";
+import { Button } from "@/components/buttons/Button";
 
 export default function HomePage() {
   const router = useRouter();
@@ -74,18 +75,10 @@ export default function HomePage() {
           </p>
         </div>
         <div className="flex flex-col gap-4 space-y-1.5 p-6 pt-0">
-          <button
-            className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 p-4 font-bold text-sm"
-            onClick={handleCreateRoom}
-          >
-            ルームを作成
-          </button>
-          <button
-            className="inline-flex h-10 justify-center items-center rounded-full bg-gray-600 p-4 font-bold text-sm"
-            onClick={handleShowModal}
-          >
+          <Button onClick={handleCreateRoom}>ルームを作成</Button>
+          <Button onClick={handleShowModal} bgColor="bg-gray-600">
             ルームに入室
-          </button>
+          </Button>
         </div>
       </div>
       <InfoDialog ref={dialogRef}>
@@ -105,22 +98,16 @@ export default function HomePage() {
           <p className="text-red-500 text-sm text-center">{errorMessage}</p>
         )}
         <div className="grid gap-4 grid-cols-2">
-          <button
-            className="inline-flex h-10 justify-center items-center rounded-full bg-gray-700 font-bold text-sm text-white"
-            onClick={handleCloseModal}
-          >
+          <Button onClick={handleCloseModal} bgColor="bg-gray-700">
             キャンセル
-          </button>
-          <button
-            className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-            onClick={handleJoinRoom}
-          >
+          </Button>
+          <Button onClick={handleJoinRoom}>
             {isSubmitting ? (
               <span className="animate-pulse">入室中...</span>
             ) : (
               "入室"
             )}
-          </button>
+          </Button>
         </div>
       </InfoDialog>
       {isSubmitting && (

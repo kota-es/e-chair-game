@@ -1,3 +1,4 @@
+import { Button } from "@/components/buttons/Button";
 import { GameRoom } from "@/types/room";
 import { Skull, Trophy, Meh } from "lucide-react";
 import { Ref } from "react";
@@ -108,12 +109,9 @@ export function GameResultDialog({
             </div>
           </div>
         </div>
-        <button
-          className={`inline-flex h-10 w-full justify-center items-center rounded-full font-bold text-white ${bgColor}`}
-          onClick={close}
-        >
+        <Button onClick={close} bgColor={bgColor}>
           ゲーム終了
-        </button>
+        </Button>
       </div>
     </dialog>
   );

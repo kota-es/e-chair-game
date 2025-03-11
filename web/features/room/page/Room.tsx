@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, onSnapshot } from "firebase/firestore";
 import { TooltipRefProps } from "react-tooltip";
-import { Zap } from "lucide-react";
 import useSound from "use-sound";
 
 import { getFirestoreApp } from "@/firestore/config";
@@ -22,6 +21,14 @@ import { GameResultDialog } from "@/features/room/components/dialogs/GameResultD
 import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultDialog";
 
 import type { GameRoom, Player } from "@/types/room";
+import { InstructionMessage } from "@/features/room/components/InstructionMessage";
+import { ActivateEffect } from "@/features/room/components/ActivateEffect";
+import { RoomContainer } from "@/features/room/components/RoomContainer";
+import { GameStatusContainer } from "@/features/room/components/GameStatusContainer";
+import { ChairContainer } from "@/features/room/components/ChairContainer";
+import { InstructionContainer } from "@/features/room/components/InstructionContainer";
+import { PlayerStatusContainer } from "@/features/room/components/PlayerStatusContainer";
+import { Button } from "@/components/buttons/Button";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -215,31 +222,6 @@ export default function Room({
     return player;
   };
 
-  const getInstruction = () => {
-    if (playerOperation.setElectricShock) {
-      return "電流を仕掛ける椅子を選んでください";
-    }
-    if (playerOperation.selectSitChair) {
-      return "座る椅子を選んでください";
-    }
-    if (playerOperation.wait) {
-      if (roomData?.round.phase === "setting") {
-        return "相手が電流を仕掛けています。。。";
-      }
-      if (roomData?.round.phase === "sitting") {
-        return "相手が座る椅子を選んでいます。。。";
-      }
-      if (roomData?.round.phase === "activating") {
-        if (roomData?.round.attackerId === userId) {
-          return "まもなく電流が起動します。。。";
-        } else {
-          return "電流を起動してください";
-        }
-      }
-    }
-    return "お待ちください。。。";
-  };
-
   const updatePlayerOperation = () => {
     const operation: playerOperation = {
       setElectricShock: false,
@@ -357,18 +339,15 @@ export default function Room({
   };
 
   return (
-    <div className="min-h-screen text-white p-4 grid grid-cols-1 auto-rows-max gap-8">
-      <div
-        id="card"
-        className="h-fit bg-gray-800 p-6 border-red-500 border-2 rounded-lg grid gap-6"
-      >
+    <RoomContainer>
+      <GameStatusContainer>
         <RoundStatus round={roomData?.round} userId={userId} />
-        <div className="grid grid-cols-2 gap-4">
+        <PlayerStatusContainer>
           <PlayerStatus userId={userId} status={myStatus()} />
           <PlayerStatus userId={userId} status={opponentStatus()} />
-        </div>
-      </div>
-      <div className="relative w-full max-w-md aspect-square mx-auto">
+        </PlayerStatusContainer>
+      </GameStatusContainer>
+      <ChairContainer>
         {roomData?.remainingChairs.map((chair) => (
           <Chair
             key={chair}
@@ -379,28 +358,24 @@ export default function Room({
           />
         ))}
         {isAllReady() && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <p
-              className={`font-bold text-white text-sm bg-gray-800 bg-opacity-75 p-3 rounded-full whitespace-nowrap
-              ${
-                (playerOperation.setElectricShock ||
-                  playerOperation.selectSitChair) &&
-                "animate-pulse"
-              }
-              `}
-            >
-              {getInstruction()}
-            </p>
-          </div>
+          <InstructionContainer>
+            <InstructionMessage
+              playerOperation={playerOperation}
+              round={roomData?.round}
+              userId={userId}
+            />
+          </InstructionContainer>
         )}
-      </div>
+      </ChairContainer>
       {!playerOperation.wait && !playerOperation.activate && selectedChair && (
-        <button
-          className="sticky bottom-3 inline-flex h-10 justify-center items-center rounded-full border-2 border-red-700 bg-red-500 font-bold text-sm text-white"
-          onClick={submitSelectedChair}
-        >
-          確定
-        </button>
+        <div className="sticky bottom-3">
+          <Button
+            onClick={submitSelectedChair}
+            styles="border-2 border-red-700"
+          >
+            確定
+          </Button>
+        </div>
       )}
       <CreaterWaitingStartDialog
         roomId={roomId!}
@@ -434,18 +409,7 @@ export default function Room({
         userId={userId!}
         close={toToP}
       />
-      {showShock === "shock" && (
-        <div className="fixed inset-0 bg-yellow-300 bg-opacity-70 flex items-center justify-center z-50">
-          <Zap className="animate-shock-vibrate text-red-700 w-48 h-48 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
-        </div>
-      )}
-      {showShock === "safe" && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="animate-pulse text-white w-48 h-48 text-center flex justify-center">
-            <span className="font-bold text-9xl">SAFE</span>
-          </div>
-        </div>
-      )}
-    </div>
+      <ActivateEffect result={showShock} />
+    </RoomContainer>
   );
 }

@@ -1,3 +1,4 @@
+import { Button } from "@/components/buttons/Button";
 import { InfoDialog } from "@/components/dialogs/InfoDialog";
 import { Ref } from "react";
 
@@ -18,12 +19,7 @@ export function ActivateShockDialog({
         </h2>
         <p className="pt-1 text-gray-300">電流を起動してください</p>
       </div>
-      <button
-        className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-        onClick={action}
-      >
-        起動
-      </button>
+      <Button onClick={action}>起動</Button>
     </InfoDialog>
   );
 }

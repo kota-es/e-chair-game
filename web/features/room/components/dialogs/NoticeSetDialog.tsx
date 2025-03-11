@@ -1,3 +1,4 @@
+import { Button } from "@/components/buttons/Button";
 import { InfoDialog } from "@/components/dialogs/InfoDialog";
 import { Ref } from "react";
 
@@ -15,12 +16,7 @@ export function NoticeSetDialog({ dialogRef, action }: NoticeSetDialogProps) {
         </h2>
         <p className="pt-1 text-gray-300">座る椅子を選択してください</p>
       </div>
-      <button
-        className="inline-flex h-10 justify-center items-center rounded-full bg-red-500 font-bold text-sm text-white"
-        onClick={action}
-      >
-        OK
-      </button>
+      <Button onClick={action}>OK</Button>
     </InfoDialog>
   );
 }

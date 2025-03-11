@@ -1,3 +1,4 @@
+import { Button } from "@/components/buttons/Button";
 import { GameRoom } from "@/types/room";
 import { ChevronRight } from "lucide-react";
 import { Ref } from "react";
@@ -119,12 +120,7 @@ export function TurnResultDialog({
             </div>
           </div>
         </div>
-        <button
-          className="inline-flex h-10 w-full justify-center items-center rounded-full bg-red-500 font-bold text-white"
-          onClick={close}
-        >
-          次へ進む
-        </button>
+        <Button onClick={close}>次へ進む</Button>
       </div>
     </dialog>
   );
