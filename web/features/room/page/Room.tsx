@@ -28,6 +28,7 @@ import { GameStatusContainer } from "@/features/room/components/GameStatusContai
 import { ChairContainer } from "@/features/room/components/ChairContainer";
 import { InstructionContainer } from "@/features/room/components/InstructionContainer";
 import { PlayerStatusContainer } from "@/features/room/components/PlayerStatusContainer";
+import { Button } from "@/components/buttons/Button";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -367,12 +368,14 @@ export default function Room({
         )}
       </ChairContainer>
       {!playerOperation.wait && !playerOperation.activate && selectedChair && (
-        <button
-          className="sticky bottom-3 inline-flex h-10 justify-center items-center rounded-full border-2 border-red-700 bg-red-500 font-bold text-sm text-white"
-          onClick={submitSelectedChair}
-        >
-          確定
-        </button>
+        <div className="sticky bottom-3">
+          <Button
+            onClick={submitSelectedChair}
+            styles="border-2 border-red-700"
+          >
+            確定
+          </Button>
+        </div>
       )}
       <CreaterWaitingStartDialog
         roomId={roomId!}
