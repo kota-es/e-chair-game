@@ -61,12 +61,12 @@ export const joinRoom = async (roomId: string) => {
   try {
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
-      return { status: 404, error: "Room not found" };
+      return { status: 404, error: "ルームが見つかりませんでした" };
     }
 
     const players = docSnap.data().players;
     if (Object.keys(players).length >= 2) {
-      return { status: 400, error: "Room is full" };
+      return { status: 400, error: "ルームは満員です" };
     }
     //メンバー追加
     const userId = customAlphabet(alphanumeric, 5)();
@@ -82,7 +82,10 @@ export const joinRoom = async (roomId: string) => {
     });
     return { status: 200, roomId: roomId, userId: userId };
   } catch (e) {
-    return { status: 500, error: e };
+    if (e instanceof Error) {
+      return { status: 500, error: e.message };
+    }
+    return { status: 500, error: "ルーム作成に失敗しました" };
   }
 };
 

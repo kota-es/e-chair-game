@@ -1,22 +1,27 @@
 "use client";
 
 import { Bolt } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState, useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { InfoDialog } from "@/components/dialogs/InfoDialog";
 import { Button } from "@/components/buttons/Button";
+import { joinRoomAction } from "@/features/room/action";
+import { useDialog } from "@/hooks/useDialog";
+import { JoinDialog } from "@/features/top/components/dialogs/JoinDialog";
 
 export default function HomePage() {
   const router = useRouter();
 
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const roomIdRef = useRef<HTMLInputElement>(null);
+  const {
+    dialogRef: joinDialogRef,
+    isShow: isShowJoinDialog,
+    showModal: showJoinModal,
+    closeModal: closeJoinModal,
+  } = useDialog();
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleShowModal = () => dialogRef.current?.showModal();
-  const handleCloseModal = () => dialogRef.current?.close();
+  const [joinState, joinAction, isJoining] = useActionState(joinRoomAction, {
+    error: "",
+  });
 
   const handleCreateRoom = async () => {
     if (isSubmitting) return;
@@ -36,30 +41,11 @@ export default function HomePage() {
     }
   };
 
-  const handleJoinRoom = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    setErrorMessage(null);
-    const roomId = roomIdRef.current?.value;
-    const response = await fetch(`/api/rooms/${roomId}/join`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "appliscation/json",
-      },
-    });
-    const res = await response.json();
-    if (res.status === 200) {
-      router.push(`/room/${res.roomId}`);
-    } else {
-      setIsSubmitting(false);
-      if (res.status === 404) {
-        setErrorMessage("ルームが見つかりませんでした");
-      }
-      if (res.status === 400) {
-        setErrorMessage("ルームが満員です");
-      }
+  useEffect(() => {
+    if (isJoining || !isShowJoinDialog) {
+      joinState.error = "";
     }
-  };
+  }, [isJoining, isShowJoinDialog, joinState]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 grid place-items-center">
@@ -75,41 +61,23 @@ export default function HomePage() {
           </p>
         </div>
         <div className="flex flex-col gap-4 space-y-1.5 p-6 pt-0">
-          <Button onClick={handleCreateRoom}>ルームを作成</Button>
-          <Button onClick={handleShowModal} bgColor="bg-gray-600">
+          <Button onClick={() => handleCreateRoom()}>ルームを作成</Button>
+          <Button
+            type="button"
+            onClick={() => showJoinModal()}
+            bgColor="bg-gray-600"
+          >
             ルームに入室
           </Button>
         </div>
       </div>
-      <InfoDialog ref={dialogRef}>
-        <div>
-          <h2 className="font-semibold text-red-500">
-            <span>ルーム入室</span>
-          </h2>
-          <p className="pt-1 text-gray-300">ルームIDを入力してください</p>
-        </div>
-        <input
-          type="text"
-          spellCheck="false"
-          className="w-full bg-gray-700 text-gray-300 p-2 rounded-md"
-          ref={roomIdRef}
-        />
-        {errorMessage && (
-          <p className="text-red-500 text-sm text-center">{errorMessage}</p>
-        )}
-        <div className="grid gap-4 grid-cols-2">
-          <Button onClick={handleCloseModal} bgColor="bg-gray-700">
-            キャンセル
-          </Button>
-          <Button onClick={handleJoinRoom}>
-            {isSubmitting ? (
-              <span className="animate-pulse">入室中...</span>
-            ) : (
-              "入室"
-            )}
-          </Button>
-        </div>
-      </InfoDialog>
+      <JoinDialog
+        dialogRef={joinDialogRef}
+        joinAction={joinAction}
+        joinState={joinState}
+        isJoining={isJoining}
+        closeJoinModal={closeJoinModal}
+      />
       {isSubmitting && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[1000]">
           <div className="animate-pulse text-white text-center flex justify-center">

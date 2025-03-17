@@ -9,11 +9,16 @@ export function useDialog() {
       dialogRef.current.showModal();
       setIsShow(true);
     }
-    if (miliseconds) {
-      setTimeout(() => {
-        closeModal();
-      }, miliseconds);
+    if (!miliseconds) return;
+
+    if (typeof miliseconds !== "number") {
+      console.error("miliseconds must be a number");
+      return;
     }
+
+    setTimeout(() => {
+      closeModal();
+    }, miliseconds);
   };
 
   const closeModal = () => {
