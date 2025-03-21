@@ -1,16 +1,15 @@
 "use client";
 
 import { Bolt } from "lucide-react";
-import { useState, useActionState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
-import { joinRoomAction } from "@/features/room/action";
+import { createRoomAction, joinRoomAction } from "@/features/room/action";
 import { useDialog } from "@/hooks/useDialog";
 import { JoinDialog } from "@/features/top/components/dialogs/JoinDialog";
+import { useToast } from "@/utils/toast/useToast";
 
 export default function HomePage() {
-  const router = useRouter();
-
+  const toast = useToast();
   const {
     dialogRef: joinDialogRef,
     isShow: isShowJoinDialog,
@@ -18,34 +17,27 @@ export default function HomePage() {
     closeModal: closeJoinModal,
   } = useDialog();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createState, createAction, isCreating] = useActionState(
+    createRoomAction,
+    {
+      error: "",
+    }
+  );
   const [joinState, joinAction, isJoining] = useActionState(joinRoomAction, {
     error: "",
   });
-
-  const handleCreateRoom = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    const response = await fetch("/api/rooms", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const res = await response.json();
-    if (res.status === 200) {
-      router.push(`/room/${res.roomId}`);
-    } else {
-      setIsSubmitting(false);
-      console.error(res.id);
-    }
-  };
 
   useEffect(() => {
     if (isJoining || !isShowJoinDialog) {
       joinState.error = "";
     }
   }, [isJoining, isShowJoinDialog, joinState]);
+
+  useEffect(() => {
+    if (createState.error) {
+      toast.open(createState.error);
+    }
+  }, [createState.error, toast]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 grid place-items-center">
@@ -61,14 +53,16 @@ export default function HomePage() {
           </p>
         </div>
         <div className="flex flex-col gap-4 space-y-1.5 p-6 pt-0">
-          <Button onClick={() => handleCreateRoom()}>ルームを作成</Button>
-          <Button
-            type="button"
-            onClick={() => showJoinModal()}
-            bgColor="bg-gray-600"
-          >
-            ルームに入室
-          </Button>
+          <form action={createAction} className="flex flex-col gap-4">
+            <Button>ルームを作成</Button>
+            <Button
+              type="button"
+              onClick={() => showJoinModal()}
+              bgColor="bg-gray-600"
+            >
+              ルームに入室
+            </Button>
+          </form>
         </div>
       </div>
       <JoinDialog
@@ -78,7 +72,7 @@ export default function HomePage() {
         isJoining={isJoining}
         closeJoinModal={closeJoinModal}
       />
-      {isSubmitting && (
+      {isCreating && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[1000]">
           <div className="animate-pulse text-white text-center flex justify-center">
             <span className="font-bold text-xl">Loading...</span>

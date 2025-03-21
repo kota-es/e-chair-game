@@ -47,7 +47,10 @@ export const createRoom = async () => {
     });
     return { status: 200, roomId: room.id, userId: createrId };
   } catch (e) {
-    return { status: "error", error: e };
+    if (e instanceof Error) {
+      return { status: 500, error: e.message };
+    }
+    return { status: 500, error: "ルーム作成に失敗しました" };
   }
 };
 
@@ -85,7 +88,7 @@ export const joinRoom = async (roomId: string) => {
     if (e instanceof Error) {
       return { status: 500, error: e.message };
     }
-    return { status: 500, error: "ルーム作成に失敗しました" };
+    return { status: 500, error: "ルーム参加に失敗しました" };
   }
 };
 
