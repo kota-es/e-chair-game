@@ -1,4 +1,4 @@
-import { watchRoom } from "@/firestore";
+import { watchRoom } from "@/libs/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (

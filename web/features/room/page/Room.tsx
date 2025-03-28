@@ -6,7 +6,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { TooltipRefProps } from "react-tooltip";
 import useSound from "use-sound";
 
-import { getFirestoreApp } from "@/firestore/config";
+import { getFirestoreApp } from "@/libs/firestore/config";
 import { useDialog } from "@/hooks/useDialog";
 import { useToast } from "@/utils/toast/useToast";
 

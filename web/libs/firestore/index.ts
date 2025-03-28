@@ -9,7 +9,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { customAlphabet } from "nanoid";
-import { getFirestoreApp } from "@/firestore/config";
+import { getFirestoreApp } from "@/libs/firestore/config";
 import { GameRoom, RoomResponse } from "@/types/room";
 
 export const createRoom = async () => {

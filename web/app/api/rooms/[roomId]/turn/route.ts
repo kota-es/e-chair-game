@@ -1,5 +1,5 @@
 import { isSuccessfulGetRoomResponse, plainRoundData } from "@/utils/room";
-import { getRoom, updateRoom } from "@/firestore";
+import { getRoom, updateRoom } from "@/libs/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
 export const PATCH = async (

@@ -1,4 +1,4 @@
-import { updateRoom } from "@/firestore";
+import { updateRoom } from "@/libs/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
 export const PATCH = async (

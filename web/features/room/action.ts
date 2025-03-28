@@ -1,6 +1,6 @@
 "use server";
 
-import { createRoom, joinRoom } from "@/firestore";
+import { createRoom, joinRoom } from "@/libs/firestore";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
