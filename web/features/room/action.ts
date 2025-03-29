@@ -1,6 +1,7 @@
 "use server";
 
-import { createRoom, joinRoom } from "@/libs/firestore";
+import { createRoom, joinRoom, updateRoom } from "@/libs/firestore";
+import { Round } from "@/types/room";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -54,3 +55,18 @@ const setCookies = async (
     });
   });
 };
+
+export async function selectChairAction(data: {
+  roomId: string | null;
+  roundData: Round | undefined;
+}) {
+  const { roomId, roundData } = data;
+  if (!roomId || !roundData) {
+    return { status: 400, error: "ルームIDとラウンドデータを指定してください" };
+  }
+  const res = await updateRoom(roomId, { round: roundData });
+  if (res.status !== 200) {
+    return { status: res.status, error: res.error };
+  }
+  return { status: 200, error: "" };
+}

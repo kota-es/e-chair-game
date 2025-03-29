@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, onSnapshot } from "firebase/firestore";
 import { TooltipRefProps } from "react-tooltip";
@@ -20,7 +20,7 @@ import { StartTurnDialog } from "@/features/room/components/dialogs/StartTurnDia
 import { GameResultDialog } from "@/features/room/components/dialogs/GameResultDialog";
 import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultDialog";
 
-import type { GameRoom, Player } from "@/types/room";
+import type { GameRoom, Player, Round } from "@/types/room";
 import { InstructionMessage } from "@/features/room/components/InstructionMessage";
 import { ActivateEffect } from "@/features/room/components/ActivateEffect";
 import { RoomContainer } from "@/features/room/components/RoomContainer";
@@ -29,6 +29,7 @@ import { ChairContainer } from "@/features/room/components/ChairContainer";
 import { InstructionContainer } from "@/features/room/components/InstructionContainer";
 import { PlayerStatusContainer } from "@/features/room/components/PlayerStatusContainer";
 import { Button } from "@/components/buttons/Button";
+import { selectChairAction } from "@/features/room/action";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -94,29 +95,61 @@ export default function Room({
   const { dialogRef: gameResultDialogRef, showModal: showGameResultModal } =
     useDialog();
 
-  const submitSelectedChair = async () => {
-    const data = getSubmitRoundData(selectedChair);
-    const res = await fetch(`/api/rooms/${roomId}/round`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ data: data }),
-    });
-    if (res.status !== 200) {
-      const data = await res.json();
-      console.error(data.error);
-      return;
+  const getSubmitRoundData = (chair: number | null): Round | undefined => {
+    const round = roomData?.round;
+    if (playerOperation.setElectricShock) {
+      return {
+        ...round,
+        electricChair: chair,
+        phase: "sitting",
+      } as Round;
+    } else if (playerOperation.selectSitChair) {
+      return {
+        ...round,
+        seatedChair: chair,
+        phase: "activating",
+      } as Round;
+    } else if (playerOperation.activate) {
+      const electricChair = round?.electricChair;
+      const seatedChair = round?.seatedChair;
+      const resultStatus = electricChair === seatedChair ? "shocked" : "safe";
+      const result = round?.result;
+      return {
+        ...round,
+        result: {
+          ...result,
+          status: resultStatus,
+        },
+        phase: "result",
+      } as Round;
     }
+
+    return round || undefined;
+  };
+
+  const selectChairActionWithData = selectChairAction.bind(null, {
+    roomId: roomId,
+    roundData: getSubmitRoundData(selectedChair),
+  });
+  const [selectState, selectAction] = useActionState(
+    selectChairActionWithData,
+    { status: 0, error: "" }
+  );
+
+  useEffect(() => {
+    const message =
+      selectState.status === 200
+        ? "番の椅子を選択しました。"
+        : "椅子の選択に失敗しました。";
     toast.open(
       <span>
         <span style={{ color: "red", fontWeight: "bold", fontSize: "1.2rem" }}>
           {selectedChair}
         </span>
-        番の椅子を選択しました。
+        {message}
       </span>
     );
-  };
+  }, [selectState]);
 
   const copyId = async () => {
     try {
@@ -162,38 +195,6 @@ export default function Room({
       console.error(data.error);
     }
     setSelectedChair(null);
-  };
-
-  const getSubmitRoundData = (chair: number | null) => {
-    const round = roomData?.round;
-    if (playerOperation.setElectricShock) {
-      return {
-        ...round,
-        electricChair: chair,
-        phase: "sitting",
-      };
-    } else if (playerOperation.selectSitChair) {
-      return {
-        ...round,
-        seatedChair: chair,
-        phase: "activating",
-      };
-    } else if (playerOperation.activate) {
-      const electricChair = round?.electricChair;
-      const seatedChair = round?.seatedChair;
-      const resultStatus = electricChair === seatedChair ? "shocked" : "safe";
-      const result = round?.result;
-      return {
-        ...round,
-        result: {
-          ...result,
-          status: resultStatus,
-        },
-        phase: "result",
-      };
-    }
-
-    return round;
   };
 
   const myStatus = () => {
@@ -347,36 +348,37 @@ export default function Room({
           <PlayerStatus userId={userId} status={opponentStatus()} />
         </PlayerStatusContainer>
       </GameStatusContainer>
-      <ChairContainer>
-        {roomData?.remainingChairs.map((chair) => (
-          <Chair
-            key={chair}
-            chair={chair}
-            setSelectedChair={setSelectedChair}
-            wait={playerOperation.wait}
-            selected={selectedChair === chair}
-          />
-        ))}
-        {isAllReady() && (
-          <InstructionContainer>
-            <InstructionMessage
-              playerOperation={playerOperation}
-              round={roomData?.round}
-              userId={userId}
+      <form action={selectAction}>
+        <ChairContainer>
+          {roomData?.remainingChairs.map((chair) => (
+            <Chair
+              key={chair}
+              chair={chair}
+              setSelectedChair={setSelectedChair}
+              wait={playerOperation.wait}
+              selected={selectedChair === chair}
             />
-          </InstructionContainer>
-        )}
-      </ChairContainer>
-      {!playerOperation.wait && !playerOperation.activate && selectedChair && (
-        <div className="sticky bottom-3">
-          <Button
-            onClick={submitSelectedChair}
-            styles="border-2 border-red-700"
-          >
-            確定
-          </Button>
-        </div>
-      )}
+          ))}
+          {isAllReady() && (
+            <InstructionContainer>
+              <InstructionMessage
+                playerOperation={playerOperation}
+                round={roomData?.round}
+                userId={userId}
+              />
+            </InstructionContainer>
+          )}
+        </ChairContainer>
+        {!playerOperation.wait &&
+          !playerOperation.activate &&
+          selectedChair && (
+            <div className="sticky bottom-3">
+              <Button onClick={selectAction} styles="border-2 border-red-700">
+                確定
+              </Button>
+            </div>
+          )}
+      </form>
       <CreaterWaitingStartDialog
         roomId={roomId!}
         dialogRef={waitingCreaterStartDialogRef}

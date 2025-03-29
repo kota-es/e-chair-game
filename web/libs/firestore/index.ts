@@ -101,7 +101,10 @@ export const updateRoom = async (roomId: string, data: Partial<GameRoom>) => {
     const docSnap = await getDoc(docRef);
     return { status: 200, data: docSnap.data() };
   } catch (e) {
-    return { status: 500, error: e };
+    if (e instanceof Error) {
+      return { status: 500, error: e.message };
+    }
+    return { status: 500, error: "ルーム更新に失敗しました" };
   }
 };
 
