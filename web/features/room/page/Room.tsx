@@ -20,7 +20,7 @@ import { StartTurnDialog } from "@/features/room/components/dialogs/StartTurnDia
 import { GameResultDialog } from "@/features/room/components/dialogs/GameResultDialog";
 import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultDialog";
 
-import type { GameRoom, Player, Round } from "@/types/room";
+import type { GameRoom, Round } from "@/types/room";
 import { InstructionMessage } from "@/features/room/components/InstructionMessage";
 import { ActivateEffect } from "@/features/room/components/ActivateEffect";
 import { RoomContainer } from "@/features/room/components/RoomContainer";
@@ -197,32 +197,6 @@ export default function Room({
     setSelectedChair(null);
   };
 
-  const myStatus = () => {
-    const player = roomData?.players.find((player) => player.id === userId);
-    if (!player) {
-      return {
-        id: "",
-        point: 0,
-        shockedCount: 0,
-        ready: false,
-      };
-    }
-    return player as Player;
-  };
-
-  const opponentStatus = () => {
-    const player = roomData?.players.find((player) => player.id !== userId);
-    if (!player) {
-      return {
-        id: "",
-        point: 0,
-        shockedCount: 0,
-        ready: false,
-      };
-    }
-    return player;
-  };
-
   const updatePlayerOperation = () => {
     const operation: playerOperation = {
       setElectricShock: false,
@@ -344,8 +318,14 @@ export default function Room({
       <GameStatusContainer>
         <RoundStatus round={roomData?.round} userId={userId} />
         <PlayerStatusContainer>
-          <PlayerStatus userId={userId} status={myStatus()} />
-          <PlayerStatus userId={userId} status={opponentStatus()} />
+          <PlayerStatus
+            userId={userId}
+            status={roomData?.players.find((player) => player.id === userId)}
+          />
+          <PlayerStatus
+            userId={userId}
+            status={roomData?.players.find((player) => player.id !== userId)}
+          />
         </PlayerStatusContainer>
       </GameStatusContainer>
       <form action={selectAction}>
