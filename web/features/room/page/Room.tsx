@@ -137,6 +137,7 @@ export default function Room({
   );
 
   useEffect(() => {
+    if (!selectedChair) return;
     const message =
       selectState.status === 200
         ? "番の椅子を選択しました。"
@@ -353,9 +354,7 @@ export default function Room({
           !playerOperation.activate &&
           selectedChair && (
             <div className="sticky bottom-3">
-              <Button onClick={selectAction} styles="border-2 border-red-700">
-                確定
-              </Button>
+              <Button styles="border-2 border-red-700">確定</Button>
             </div>
           )}
       </form>
