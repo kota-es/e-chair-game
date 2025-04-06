@@ -30,6 +30,8 @@ import { InstructionContainer } from "@/features/room/components/InstructionCont
 import { PlayerStatusContainer } from "@/features/room/components/PlayerStatusContainer";
 import { Button } from "@/components/buttons/Button";
 import { selectChairAction } from "@/features/room/action";
+import { useNoticeDialog } from "@/components/dialogs/notice/useNoticeDialog";
+import { NoticeDialog } from "@/components/dialogs/notice/NoticeDailog";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -64,6 +66,13 @@ export default function Room({
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
   const previousRoomDataRef = useRef<GameRoom | null>(null);
+
+  const {
+    dialogRef: NoticeDialogRef,
+    dialogState: noticeDialogState,
+    showModal: showNoticeModal,
+    closeModal: closeNoticeModal,
+  } = useNoticeDialog();
 
   const {
     dialogRef: waitingCreaterStartDialogRef,
@@ -268,6 +277,21 @@ export default function Room({
 
       if (roomData.round.phase === "setting") {
         showStartTurnModal(2000);
+        if (roomData.round.attackerId !== userId) {
+          setTimeout(() => {
+            showNoticeModal(
+              {
+                title: "電気椅子設置",
+                message: "電流を仕掛ける椅子を選択してください",
+                button: {
+                  label: "OK",
+                  action: () => closeNoticeModal(),
+                },
+              },
+              2000
+            );
+          }, 2100);
+        }
       }
 
       if (
@@ -358,6 +382,12 @@ export default function Room({
             </div>
           )}
       </form>
+      <NoticeDialog
+        dialogRef={NoticeDialogRef}
+        title={noticeDialogState.title}
+        message={noticeDialogState.message}
+        button={noticeDialogState.button}
+      />
       <CreaterWaitingStartDialog
         roomId={roomId!}
         dialogRef={waitingCreaterStartDialogRef}
