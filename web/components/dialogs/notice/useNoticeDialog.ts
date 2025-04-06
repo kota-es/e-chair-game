@@ -24,7 +24,7 @@ export function useNoticeDialog() {
         action: () => void;
       };
     },
-    miliseconds: number
+    miliseconds?: number
   ) => {
     if (dialogRef.current) {
       dialogRef.current.showModal();

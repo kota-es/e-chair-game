@@ -13,9 +13,7 @@ import { useToast } from "@/utils/toast/useToast";
 import { Chair } from "@/features/room/components/Chair";
 import { PlayerStatus } from "@/features/room/components/PlayerStatus";
 import { RoundStatus } from "@/features/room/components/RoundStatus";
-import { ActivateShockDialog } from "@/features/room/components/dialogs/ActivateShockDialog";
 import { CreaterWaitingStartDialog } from "@/features/room/components/dialogs/CreaterWaitingStartDialog";
-import { NoticeSetDialog } from "@/features/room/components/dialogs/NoticeSetDialog";
 import { StartTurnDialog } from "@/features/room/components/dialogs/StartTurnDialog";
 import { GameResultDialog } from "@/features/room/components/dialogs/GameResultDialog";
 import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultDialog";
@@ -84,18 +82,6 @@ export default function Room({
     useDialog();
 
   const {
-    dialogRef: noticeSetDialogRef,
-    showModal: showNoticeSetModal,
-    closeModal: closeNoticeSetModal,
-  } = useDialog();
-
-  const {
-    dialogRef: activateShockDialogRef,
-    showModal: showActivateShockModal,
-    closeModal: closeActivateShockModal,
-  } = useDialog();
-
-  const {
     dialogRef: turnResultDialogRef,
     showModal: showTurnResultModal,
     closeModal: closeTurnResultModal,
@@ -159,6 +145,7 @@ export default function Room({
         {message}
       </span>
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectState]);
 
   const copyId = async () => {
@@ -178,7 +165,7 @@ export default function Room({
   };
 
   const submitActivate = async () => {
-    closeActivateShockModal();
+    closeNoticeModal();
     const res = await fetch(`/api/rooms/${roomId}/activate`, {
       method: "PATCH",
       headers: {
@@ -254,6 +241,7 @@ export default function Room({
     };
 
     watchRoom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isAllReady = () => {
@@ -283,10 +271,7 @@ export default function Room({
               {
                 title: "電気椅子設置",
                 message: "電流を仕掛ける椅子を選択してください",
-                button: {
-                  label: "OK",
-                  action: () => closeNoticeModal(),
-                },
+                button: { label: "OK", action: () => closeNoticeModal() },
               },
               2000
             );
@@ -298,14 +283,25 @@ export default function Room({
         roomData.round.phase === "sitting" &&
         roomData.round.attackerId === userId
       ) {
-        showNoticeSetModal(3000);
+        showNoticeModal(
+          {
+            title: "相手が電気椅子を仕掛けました",
+            message: "座る椅子を選択してください",
+            button: { label: "OK", action: () => closeNoticeModal() },
+          },
+          2000
+        );
       }
     }
     if (
       roomData.round.attackerId !== userId &&
       roomData.round.phase === "activating"
     ) {
-      showActivateShockModal();
+      showNoticeModal({
+        title: "相手が椅子に座りました",
+        message: "電流を起動してください",
+        button: { label: "起動", action: () => submitActivate() },
+      });
     }
     if (
       roomData.round.phase === "result" &&
@@ -332,6 +328,7 @@ export default function Room({
     }
 
     updatePlayerOperation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomData]);
 
   const toToP = () => {
@@ -393,14 +390,6 @@ export default function Room({
         dialogRef={waitingCreaterStartDialogRef}
         tooltipRef={tooltipRef}
         copyId={copyId}
-      />
-      <ActivateShockDialog
-        dialogRef={activateShockDialogRef}
-        action={submitActivate}
-      />
-      <NoticeSetDialog
-        dialogRef={noticeSetDialogRef}
-        action={closeNoticeSetModal}
       />
       <StartTurnDialog
         dialogRef={startTurnDialogRef}
