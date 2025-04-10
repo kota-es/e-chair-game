@@ -1,13 +1,6 @@
 "use server";
 
-import {
-  getDoc,
-  addDoc,
-  collection,
-  doc,
-  updateDoc,
-  onSnapshot,
-} from "firebase/firestore";
+import { getDoc, doc, updateDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { customAlphabet } from "nanoid";
 import { getFirestoreApp } from "@/libs/firestore/config";
 import { GameRoom, RoomResponse } from "@/types/room";
@@ -18,9 +11,10 @@ export const createRoom = async () => {
   const db = await getFirestoreApp();
 
   try {
+    const newRoomId = await createRoomId();
     const createrId = customAlphabet(alphanumeric, 5)();
     // Add a new document with a generated id.
-    const room = await addDoc(collection(db, "rooms"), {
+    await setDoc(doc(db, "rooms", newRoomId), {
       status: "waiting",
       createrId: createrId,
       round: {
@@ -45,7 +39,7 @@ export const createRoom = async () => {
       ],
       remainingChairs: [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     });
-    return { status: 200, roomId: room.id, userId: createrId };
+    return { status: 200, roomId: newRoomId, userId: createrId };
   } catch (e) {
     if (e instanceof Error) {
       return { status: 500, error: e.message };
@@ -128,4 +122,15 @@ export const watchRoom = async (roomId: string) => {
   });
 
   return unsubscribe;
+};
+
+const createRoomId = async () => {
+  const db = await getFirestoreApp();
+  const alphanumeric = "23456789abcdefghjklmnpqrstuvwxyz";
+  const newId = customAlphabet(alphanumeric, 7)();
+  const snapshot = await getDoc(doc(db, "rooms", newId));
+  if (snapshot.exists()) {
+    return createRoomId();
+  }
+  return newId;
 };
