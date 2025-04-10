@@ -39,6 +39,7 @@ export function JoinDialog({
             </div>
             <div className="grid gap-4 grid-cols-2">
               <Button
+                type="button"
                 onClick={() => closeJoinModal()}
                 bgColor="bg-gray-700"
                 disabled={isJoining}
