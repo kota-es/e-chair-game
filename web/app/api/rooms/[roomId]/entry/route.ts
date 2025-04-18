@@ -37,7 +37,10 @@ export const PATCH = async (
 
   const res = await updateRoom(roomId, data);
   if (res.status !== 200) {
-    return NextResponse.json({ error: res.error }, { status: res.status });
+    return NextResponse.json(
+      { error: res.error },
+      { status: res.status, statusText: res.error }
+    );
   }
   return NextResponse.json({ data: res.data }, { status: res.status });
 };
