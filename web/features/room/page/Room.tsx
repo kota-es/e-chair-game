@@ -27,7 +27,11 @@ import { ChairContainer } from "@/features/room/components/ChairContainer";
 import { InstructionContainer } from "@/features/room/components/InstructionContainer";
 import { PlayerStatusContainer } from "@/features/room/components/PlayerStatusContainer";
 import { Button } from "@/components/buttons/Button";
-import { selectChairAction } from "@/features/room/action";
+import {
+  activateAction,
+  changeTurnAction,
+  selectChairAction,
+} from "@/features/room/action";
 import { useNoticeDialog } from "@/components/dialogs/notice/useNoticeDialog";
 import { NoticeDialog } from "@/components/dialogs/notice/NoticeDailog";
 
@@ -166,30 +170,20 @@ export default function Room({
 
   const submitActivate = async () => {
     closeNoticeModal();
-    const res = await fetch(`/api/rooms/${roomId}/activate`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await activateAction(roomId!);
     if (res.status !== 200) {
-      const data = await res.json();
-      console.error(data.error);
+      console.error(res.error);
     }
   };
 
   const changeTurn = async () => {
     closeTurnResultModal();
-    const res = await fetch(`/api/rooms/${roomId}/turn`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId }),
+    const res = await changeTurnAction({
+      roomId: roomId!,
+      userId: userId!,
     });
     if (res.status !== 200) {
-      const data = await res.json();
-      console.error(data.error);
+      console.error(res.error);
     }
     setSelectedChair(null);
   };
