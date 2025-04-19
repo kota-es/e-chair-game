@@ -1,7 +1,8 @@
 "use server";
 
-import { createRoom, joinRoom, updateRoom } from "@/libs/firestore";
-import { Round } from "@/types/room";
+import { createRoom, getRoom, joinRoom, updateRoom } from "@/libs/firestore";
+import { GameRoom, Round } from "@/types/room";
+import { isSuccessfulGetRoomResponse } from "@/utils/room";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -55,6 +56,45 @@ const setCookies = async (
     });
   });
 };
+
+export async function entryRoomAction({
+  userId,
+  roomId,
+}: {
+  userId: string;
+  roomId: string;
+}) {
+  const room = await getRoom(roomId);
+  if (!isSuccessfulGetRoomResponse(room)) {
+    return { error: room.error };
+  }
+
+  const isPlayer = room.data.players.some((player) => player.id === userId);
+  if (!isPlayer) {
+    return { error: "このルームのプレイヤーではありません" };
+  }
+
+  const playersData = room.data.players.map((player) => {
+    if (player.id === userId) {
+      return {
+        ...player,
+        ready: true,
+      };
+    }
+    return player;
+  });
+
+  const data = {
+    ...room.data,
+    players: playersData,
+  };
+
+  const res = await updateRoom(roomId, data);
+  if (res.status !== 200) {
+    return { status: res.status, error: res.error };
+  }
+  return { status: res.status, room: res.data as GameRoom };
+}
 
 export async function selectChairAction(data: {
   roomId: string | null;
