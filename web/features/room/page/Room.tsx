@@ -230,11 +230,19 @@ export default function Room({
           }
           return data;
         });
-        return () => unsubscribe();
       });
+      return unsubscribe;
     };
 
-    watchRoom();
+    const unsubScribePromise = watchRoom();
+
+    return () => {
+      unsubScribePromise.then((unsubscribe) => {
+        if (typeof unsubscribe === "function") {
+          unsubscribe();
+        }
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
