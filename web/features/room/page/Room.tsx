@@ -7,7 +7,6 @@ import { TooltipRefProps } from "react-tooltip";
 import useSound from "use-sound";
 
 import { getFirestoreApp } from "@/libs/firestore/config";
-import { useDialog } from "@/hooks/useDialog";
 import { useToast } from "@/utils/toast/useToast";
 
 import { Chair } from "@/features/room/components/Chair";
@@ -32,8 +31,8 @@ import {
   changeTurnAction,
   selectChairAction,
 } from "@/features/room/action";
-import { useNoticeDialog } from "@/components/dialogs/notice/useNoticeDialog";
 import { NoticeDialog } from "@/components/dialogs/notice/NoticeDailog";
+import { useRoomDialogs } from "@/features/room/hooks/useRoomDialogs";
 
 type playerOperation = {
   setElectricShock: boolean;
@@ -68,31 +67,22 @@ export default function Room({
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
   const previousRoomDataRef = useRef<GameRoom | null>(null);
-
   const {
-    dialogRef: NoticeDialogRef,
-    dialogState: noticeDialogState,
-    showModal: showNoticeModal,
-    closeModal: closeNoticeModal,
-  } = useNoticeDialog();
-
-  const {
-    dialogRef: waitingCreaterStartDialogRef,
-    showModal: showCreaterWaitingStartModa,
-    closeModal: closeCreaterWaitingStartModal,
-  } = useDialog();
-
-  const { dialogRef: startTurnDialogRef, showModal: showStartTurnModal } =
-    useDialog();
-
-  const {
-    dialogRef: turnResultDialogRef,
-    showModal: showTurnResultModal,
-    closeModal: closeTurnResultModal,
-  } = useDialog();
-
-  const { dialogRef: gameResultDialogRef, showModal: showGameResultModal } =
-    useDialog();
+    NoticeDialogRef,
+    noticeDialogState,
+    showNoticeModal,
+    closeNoticeModal,
+    waitingCreaterStartDialogRef,
+    showCreaterWaitingStartModa,
+    closeCreaterWaitingStartModal,
+    startTurnDialogRef,
+    showStartTurnModal,
+    turnResultDialogRef,
+    showTurnResultModal,
+    closeTurnResultModal,
+    gameResultDialogRef,
+    showGameResultModal,
+  } = useRoomDialogs();
 
   const getSubmitRoundData = (chair: number | null): Round | undefined => {
     const round = roomData?.round;
