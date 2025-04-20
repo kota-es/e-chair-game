@@ -2,11 +2,9 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, onSnapshot } from "firebase/firestore";
 import { TooltipRefProps } from "react-tooltip";
 import useSound from "use-sound";
 
-import { getFirestoreApp } from "@/libs/firestore/config";
 import { useToast } from "@/utils/toast/useToast";
 
 import { Chair } from "@/features/room/components/Chair";
@@ -34,6 +32,7 @@ import {
 import { NoticeDialog } from "@/components/dialogs/notice/NoticeDailog";
 import { useRoomDialogs } from "@/features/room/hooks/useRoomDialogs";
 import { usePlayerOperation } from "@/features/room/hooks/usePlayerOperation";
+import { useRoomWatcher } from "@/features/room/hooks/useRoomWatcher";
 
 export default function Room({
   initialData,
@@ -71,7 +70,14 @@ export default function Room({
     gameResultDialogRef,
     showGameResultModal,
   } = useRoomDialogs();
+
   const playerOperation = usePlayerOperation(roomData, userId!);
+
+  useRoomWatcher({
+    roomId: roomId,
+    setRoomData: setRoomData,
+    previousRoomDataRef: previousRoomDataRef,
+  });
 
   const getSubmitRoundData = (chair: number | null): Round | undefined => {
     const round = roomData?.round;
@@ -166,35 +172,6 @@ export default function Room({
     }
     setSelectedChair(null);
   };
-
-  useEffect(() => {
-    const watchRoom = async () => {
-      const db = await getFirestoreApp();
-      const docRef = doc(db, "rooms", roomId!);
-      const unsubscribe = onSnapshot(docRef, (doc) => {
-        const data = doc.data() as GameRoom;
-
-        setRoomData((prev) => {
-          if (data.round.phase === "activating") {
-            previousRoomDataRef.current = prev;
-          }
-          return data;
-        });
-      });
-      return unsubscribe;
-    };
-
-    const unsubScribePromise = watchRoom();
-
-    return () => {
-      unsubScribePromise.then((unsubscribe) => {
-        if (typeof unsubscribe === "function") {
-          unsubscribe();
-        }
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const isAllReady = () => {
     if (!roomData) return false;
