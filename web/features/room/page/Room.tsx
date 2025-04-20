@@ -33,13 +33,7 @@ import {
 } from "@/features/room/action";
 import { NoticeDialog } from "@/components/dialogs/notice/NoticeDailog";
 import { useRoomDialogs } from "@/features/room/hooks/useRoomDialogs";
-
-type playerOperation = {
-  setElectricShock: boolean;
-  selectSitChair: boolean;
-  activate: boolean;
-  wait: boolean;
-};
+import { usePlayerOperation } from "@/features/room/hooks/usePlayerOperation";
 
 export default function Room({
   initialData,
@@ -57,12 +51,6 @@ export default function Room({
   const [roomData, setRoomData] = useState<GameRoom | null>(initialData.room);
   const userId = initialData.userId;
   const roomId = initialData.roomId;
-  const [playerOperation, setPlayerOperation] = useState<playerOperation>({
-    setElectricShock: false,
-    selectSitChair: false,
-    activate: false,
-    wait: false,
-  });
   const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
   const [selectedChair, setSelectedChair] = useState<number | null>(null);
   const tooltipRef = useRef<TooltipRefProps>(null);
@@ -83,6 +71,7 @@ export default function Room({
     gameResultDialogRef,
     showGameResultModal,
   } = useRoomDialogs();
+  const playerOperation = usePlayerOperation(roomData, userId!);
 
   const getSubmitRoundData = (chair: number | null): Round | undefined => {
     const round = roomData?.round;
@@ -176,35 +165,6 @@ export default function Room({
       console.error(res.error);
     }
     setSelectedChair(null);
-  };
-
-  const updatePlayerOperation = () => {
-    const operation: playerOperation = {
-      setElectricShock: false,
-      selectSitChair: false,
-      activate: false,
-      wait: false,
-    };
-    if (
-      roomData?.round.attackerId !== userId &&
-      roomData?.round.electricChair === null
-    ) {
-      operation.setElectricShock = true;
-    } else if (
-      roomData?.round.attackerId === userId &&
-      roomData?.round.electricChair !== null &&
-      roomData?.round.seatedChair === null
-    ) {
-      operation.selectSitChair = true;
-    } else if (
-      roomData?.round.phase === "activating" &&
-      roomData?.round.attackerId !== userId
-    ) {
-      operation.activate = true;
-    } else {
-      operation.wait = true;
-    }
-    setPlayerOperation(operation);
   };
 
   useEffect(() => {
@@ -318,8 +278,6 @@ export default function Room({
         }
       }, 1500);
     }
-
-    updatePlayerOperation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomData]);
 
