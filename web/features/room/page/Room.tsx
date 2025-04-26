@@ -33,6 +33,7 @@ import { NoticeDialog } from "@/components/dialogs/notice/NoticeDailog";
 import { useRoomDialogs } from "@/features/room/hooks/useRoomDialogs";
 import { usePlayerOperation } from "@/features/room/hooks/usePlayerOperation";
 import { useRoomWatcher } from "@/features/room/hooks/useRoomWatcher";
+import { useRoomEffect } from "@/features/room/hooks/useRoomEffect";
 
 export default function Room({
   initialData,
@@ -60,7 +61,7 @@ export default function Room({
     showNoticeModal,
     closeNoticeModal,
     waitingCreaterStartDialogRef,
-    showCreaterWaitingStartModa,
+    showCreaterWaitingStartModal,
     closeCreaterWaitingStartModal,
     startTurnDialogRef,
     showStartTurnModal,
@@ -181,86 +182,26 @@ export default function Room({
     );
   };
 
-  useEffect(() => {
-    if (!roomData) return;
-
-    if (!isAllReady()) {
-      if (roomData?.createrId === userId) {
-        showCreaterWaitingStartModa();
-      }
-    }
-    if (isAllReady()) {
-      closeCreaterWaitingStartModal();
-
-      if (roomData.round.phase === "setting") {
-        showStartTurnModal(2000);
-        if (roomData.round.attackerId !== userId) {
-          setTimeout(() => {
-            showNoticeModal(
-              {
-                title: "電気椅子設置",
-                message: "電流を仕掛ける椅子を選択してください",
-                button: { label: "OK", action: () => closeNoticeModal() },
-              },
-              2000
-            );
-          }, 2100);
-        }
-      }
-
-      if (
-        roomData.round.phase === "sitting" &&
-        roomData.round.attackerId === userId
-      ) {
-        showNoticeModal(
-          {
-            title: "相手が電気椅子を仕掛けました",
-            message: "座る椅子を選択してください",
-            button: { label: "OK", action: () => closeNoticeModal() },
-          },
-          2000
-        );
-      }
-    }
-    if (
-      roomData.round.attackerId !== userId &&
-      roomData.round.phase === "activating"
-    ) {
-      showNoticeModal({
-        title: "相手が椅子に座りました",
-        message: "電流を起動してください",
-        button: { label: "起動", action: () => submitActivate() },
-      });
-    }
-    if (
-      roomData.round.phase === "result" &&
-      !roomData.round.result.shownResult
-    ) {
-      const effectType =
-        roomData.round.result.status === "shocked" ? "shock" : "safe";
-      if (effectType === "shock") {
-        playShockEffect({
-          playbackRate: 0.7,
-        });
-      } else {
-        playSafeEffect();
-      }
-      setShowShock(effectType);
-      setTimeout(() => {
-        setShowShock("");
-        if (roomData.winnerId) {
-          showGameResultModal();
-        } else {
-          showTurnResultModal();
-        }
-      }, 1500);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomData]);
-
   const toToP = () => {
     router.push("/");
   };
+
+  useRoomEffect({
+    roomData,
+    userId: userId!,
+    isAllReady,
+    setShowShock,
+    showCreaterWaitingStartModal,
+    closeCreaterWaitingStartModal,
+    showStartTurnModal,
+    showNoticeModal,
+    closeNoticeModal,
+    submitActivate,
+    playShockEffect,
+    playSafeEffect,
+    showGameResultModal,
+    showTurnResultModal,
+  });
 
   return (
     <RoomContainer>

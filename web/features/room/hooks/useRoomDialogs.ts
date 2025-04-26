@@ -11,7 +11,7 @@ export function useRoomDialogs() {
 
   const {
     dialogRef: waitingCreaterStartDialogRef,
-    showModal: showCreaterWaitingStartModa,
+    showModal: showCreaterWaitingStartModal,
     closeModal: closeCreaterWaitingStartModal,
   } = useDialog();
 
@@ -33,7 +33,7 @@ export function useRoomDialogs() {
     showNoticeModal,
     closeNoticeModal,
     waitingCreaterStartDialogRef,
-    showCreaterWaitingStartModa,
+    showCreaterWaitingStartModal,
     closeCreaterWaitingStartModal,
     startTurnDialogRef,
     showStartTurnModal,
