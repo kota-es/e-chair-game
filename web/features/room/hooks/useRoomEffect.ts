@@ -13,7 +13,7 @@ export function useRoomEffect({
   showStartTurnModal,
   showNoticeModal,
   closeNoticeModal,
-  submitActivate,
+  handleSubmitActivate,
   playShockEffect,
   playSafeEffect,
   showGameResultModal,
@@ -28,7 +28,7 @@ export function useRoomEffect({
   showStartTurnModal: (duration?: number) => void;
   showNoticeModal: ShowNoticeModalFn;
   closeNoticeModal: () => void;
-  submitActivate: () => void;
+  handleSubmitActivate: () => void;
   playShockEffect: (options?: { playbackRate?: number }) => void;
   playSafeEffect: () => void;
   showGameResultModal: () => void;
@@ -64,7 +64,10 @@ export function useRoomEffect({
       }
     }
     if (roomData.round.phase === "activating" && isDefender) {
-      RoomPhaseHandlers.handleActivatingPhase(showNoticeModal, submitActivate);
+      RoomPhaseHandlers.handleActivatingPhase(
+        showNoticeModal,
+        handleSubmitActivate
+      );
     }
     if (
       roomData.round.phase === "result" &&

@@ -1,7 +1,7 @@
 import { GameRoom } from "@/types/room";
 import { useMemo } from "react";
 
-type PlayerOperation = {
+export type PlayerOperation = {
   setElectricShock: boolean;
   selectSitChair: boolean;
   activate: boolean;

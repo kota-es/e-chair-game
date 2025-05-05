@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TooltipRefProps } from "react-tooltip";
 import useSound from "use-sound";
@@ -15,7 +15,7 @@ import { StartTurnDialog } from "@/features/room/components/dialogs/StartTurnDia
 import { GameResultDialog } from "@/features/room/components/dialogs/GameResultDialog";
 import { TurnResultDialog } from "@/features/room/components/dialogs/TurnResultDialog";
 
-import type { GameRoom, Round } from "@/types/room";
+import type { GameRoom } from "@/types/room";
 import { InstructionMessage } from "@/features/room/components/InstructionMessage";
 import { ActivateEffect } from "@/features/room/components/ActivateEffect";
 import { RoomContainer } from "@/features/room/components/RoomContainer";
@@ -24,16 +24,12 @@ import { ChairContainer } from "@/features/room/components/ChairContainer";
 import { InstructionContainer } from "@/features/room/components/InstructionContainer";
 import { PlayerStatusContainer } from "@/features/room/components/PlayerStatusContainer";
 import { Button } from "@/components/buttons/Button";
-import {
-  activateAction,
-  changeTurnAction,
-  selectChairAction,
-} from "@/features/room/action";
 import { NoticeDialog } from "@/components/dialogs/notice/NoticeDailog";
 import { useRoomDialogs } from "@/features/room/hooks/useRoomDialogs";
 import { usePlayerOperation } from "@/features/room/hooks/usePlayerOperation";
 import { useRoomWatcher } from "@/features/room/hooks/useRoomWatcher";
 import { useRoomEffect } from "@/features/room/hooks/useRoomEffect";
+import { useRoomActions } from "@/features/room/hooks/useRoomActions";
 
 export default function Room({
   initialData,
@@ -52,8 +48,7 @@ export default function Room({
   const userId = initialData.userId;
   const roomId = initialData.roomId;
   const [showShock, setShowShock] = useState<"" | "shock" | "safe">("");
-  const [selectedChair, setSelectedChair] = useState<number | null>(null);
-  const tooltipRef = useRef<TooltipRefProps>(null);
+  const tooltipRef = useRef<TooltipRefProps | null>(null);
   const previousRoomDataRef = useRef<GameRoom | null>(null);
   const {
     NoticeDialogRef,
@@ -80,46 +75,21 @@ export default function Room({
     previousRoomDataRef: previousRoomDataRef,
   });
 
-  const getSubmitRoundData = (chair: number | null): Round | undefined => {
-    const round = roomData?.round;
-    if (playerOperation.setElectricShock) {
-      return {
-        ...round,
-        electricChair: chair,
-        phase: "sitting",
-      } as Round;
-    } else if (playerOperation.selectSitChair) {
-      return {
-        ...round,
-        seatedChair: chair,
-        phase: "activating",
-      } as Round;
-    } else if (playerOperation.activate) {
-      const electricChair = round?.electricChair;
-      const seatedChair = round?.seatedChair;
-      const resultStatus = electricChair === seatedChair ? "shocked" : "safe";
-      const result = round?.result;
-      return {
-        ...round,
-        result: {
-          ...result,
-          status: resultStatus,
-        },
-        phase: "result",
-      } as Round;
-    }
-
-    return round || undefined;
-  };
-
-  const selectChairActionWithData = selectChairAction.bind(null, {
-    roomId: roomId,
-    roundData: getSubmitRoundData(selectedChair),
+  const {
+    selectedChair,
+    setSelectedChair,
+    selectState,
+    selectChair,
+    copyRoomId,
+    submitActivate,
+    changeTurn,
+  } = useRoomActions({
+    roomId,
+    userId,
+    tooltipRef,
+    roomData,
+    playerOperation,
   });
-  const [selectState, selectAction] = useActionState(
-    selectChairActionWithData,
-    { status: 0, error: "" }
-  );
 
   useEffect(() => {
     if (!selectedChair) return;
@@ -138,40 +108,12 @@ export default function Room({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectState]);
 
-  const copyId = async () => {
-    try {
-      await navigator.clipboard.writeText(roomId!);
-      tooltipRef.current?.open({
-        anchorSelect: "#id-tooltip",
-        content: "IDをコピーしました",
-      });
-    } catch (error) {
-      console.error(error);
-      tooltipRef.current?.open({
-        anchorSelect: "#id-tooltip",
-        content: "IDをコピーできませんでした",
-      });
-    }
+  const handleSubmitActivate = () => {
+    submitActivate(closeNoticeModal);
   };
 
-  const submitActivate = async () => {
-    closeNoticeModal();
-    const res = await activateAction(roomId!);
-    if (res.status !== 200) {
-      console.error(res.error);
-    }
-  };
-
-  const changeTurn = async () => {
-    closeTurnResultModal();
-    const res = await changeTurnAction({
-      roomId: roomId!,
-      userId: userId!,
-    });
-    if (res.status !== 200) {
-      console.error(res.error);
-    }
-    setSelectedChair(null);
+  const handleChangeTurn = async () => {
+    changeTurn(closeTurnResultModal, () => setSelectedChair(null));
   };
 
   const isAllReady = () => {
@@ -196,7 +138,7 @@ export default function Room({
     showStartTurnModal,
     showNoticeModal,
     closeNoticeModal,
-    submitActivate,
+    handleSubmitActivate,
     playShockEffect,
     playSafeEffect,
     showGameResultModal,
@@ -218,7 +160,7 @@ export default function Room({
           />
         </PlayerStatusContainer>
       </GameStatusContainer>
-      <form action={selectAction}>
+      <form action={selectChair}>
         <ChairContainer>
           {roomData?.remainingChairs.map((chair) => (
             <Chair
@@ -257,7 +199,7 @@ export default function Room({
         roomId={roomId!}
         dialogRef={waitingCreaterStartDialogRef}
         tooltipRef={tooltipRef}
-        copyId={copyId}
+        copyId={copyRoomId}
       />
       <StartTurnDialog
         dialogRef={startTurnDialogRef}
@@ -269,7 +211,7 @@ export default function Room({
         roomData={roomData!}
         previousRoomData={previousRoomDataRef.current!}
         userId={userId!}
-        close={changeTurn}
+        close={handleChangeTurn}
       />
       <GameResultDialog
         ref={gameResultDialogRef}
